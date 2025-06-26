@@ -39,8 +39,13 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Something went wrong!' });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
+// 404 handler for API routes
+app.use('/api/*', (req, res) => {
+    res.status(404).json({ error: 'API route not found' });
+});
+
+// Catch all other routes
+app.use((req, res) => {
     res.status(404).json({ error: 'Route not found' });
 });
 
