@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS profile (
 
 -- Insert default admin user (password: admin123)
 INSERT OR IGNORE INTO users (username, email, password_hash) 
-VALUES ('admin', 'admin@takayafilms.com', '$2a$10$K5j7YzGjzqZQKjKjKjKjKON1N1N1N1N1N1N1N1N1N1N1N1N1N1N1N1');
+VALUES ('admin', 'admin@takayafilms.com', '$2b$10$oSFxih2mDGX.UajpEm.qM.lYT18tVkmDD2qatgGtrF8Gd0Onqa5Te');
 
 -- Insert default profile
 INSERT OR IGNORE INTO profile (name, title, bio) 
