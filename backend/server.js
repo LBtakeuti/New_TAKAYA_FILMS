@@ -19,7 +19,14 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 const authRoutes = require('./routes/auth');
+const videoRoutes = require('./routes/videos');
+const careerRoutes = require('./routes/career');
+const profileRoutes = require('./routes/profile');
+
 app.use('/api/auth', authRoutes);
+app.use('/api/videos', videoRoutes);
+app.use('/api/career', careerRoutes);
+app.use('/api/profile', profileRoutes);
 
 // Test route
 app.get('/api/test', (req, res) => {
