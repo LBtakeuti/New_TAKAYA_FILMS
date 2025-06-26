@@ -1,0 +1,19 @@
+{
+  "name": "new-takaya-films",
+  "version": "1.0.0",
+  "description": "TAKAYA FILMS Portfolio Website",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["portfolio", "film", "video", "react", "node"],
+  "author": "TAKAYA",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^9.2.0"
+  }
+}
