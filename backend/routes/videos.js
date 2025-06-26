@@ -94,14 +94,16 @@ router.post('/', authenticateToken, upload.fields([
     project_date,
     status = 'draft',
     featured = false,
-    sort_order = 0
+    sort_order = 0,
+    youtube_url
   } = req.body;
 
   if (!title) {
     return res.status(400).json({ error: 'Title is required' });
   }
 
-  const video_url = req.files?.video ? `/uploads/${req.files.video[0].filename}` : null;
+  // Use YouTube URL if provided, otherwise use uploaded file
+  const video_url = youtube_url || (req.files?.video ? `/uploads/${req.files.video[0].filename}` : null);
   const thumbnail_url = req.files?.thumbnail ? `/uploads/${req.files.thumbnail[0].filename}` : null;
 
   const query = `
@@ -137,7 +139,8 @@ router.put('/:id', authenticateToken, upload.fields([
     project_date,
     status,
     featured,
-    sort_order
+    sort_order,
+    youtube_url
   } = req.body;
 
   // First, get the current video data
@@ -150,8 +153,8 @@ router.put('/:id', authenticateToken, upload.fields([
       return res.status(404).json({ error: 'Video not found' });
     }
 
-    // Use new files if uploaded, otherwise keep existing URLs
-    const video_url = req.files?.video ? `/uploads/${req.files.video[0].filename}` : currentVideo.video_url;
+    // Use YouTube URL if provided, otherwise use uploaded file or keep existing
+    const video_url = youtube_url || (req.files?.video ? `/uploads/${req.files.video[0].filename}` : currentVideo.video_url);
     const thumbnail_url = req.files?.thumbnail ? `/uploads/${req.files.thumbnail[0].filename}` : currentVideo.thumbnail_url;
 
     const query = `
