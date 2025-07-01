@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import VideoManager from './components/VideoManager';
-import CareerManager from './components/CareerManager';
 import ProfileManager from './components/ProfileManager';
 
 // Simple Admin Interface for Testing
@@ -219,18 +218,6 @@ function AdminApp() {
                 動画管理
               </button>
               <button
-                onClick={() => setCurrentView('career')}
-                style={{
-                  background: currentView === 'career' ? '#f0f0f0' : 'transparent',
-                  border: 'none',
-                  padding: '8px 12px',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
-              >
-                経歴管理
-              </button>
-              <button
                 onClick={() => setCurrentView('profile')}
                 style={{
                   background: currentView === 'profile' ? '#f0f0f0' : 'transparent',
@@ -297,16 +284,6 @@ function AdminApp() {
             <p style={{color: '#666', margin: 0, fontSize: '14px'}}>Total uploaded videos</p>
           </div>
 
-          <div style={{
-            background: 'white',
-            padding: '30px',
-            borderRadius: '8px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-          }}>
-            <h3 style={{margin: '0 0 15px 0', color: '#333'}}>💼 Career</h3>
-            <p style={{fontSize: '2rem', margin: '0 0 10px 0', color: '#000'}}>0</p>
-            <p style={{color: '#666', margin: 0, fontSize: '14px'}}>Career entries</p>
-          </div>
 
           <div style={{
             background: 'white',
@@ -346,19 +323,6 @@ function AdminApp() {
               }}
             >
               📹 Add Video
-            </button>
-            <button
-              onClick={() => setCurrentView('career')}
-              style={{
-                padding: '15px',
-                background: '#000',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              💼 Manage Career
             </button>
             <button
               onClick={() => setCurrentView('profile')}
@@ -417,20 +381,6 @@ function AdminApp() {
               GET /videos
             </button>
             <button
-              onClick={() => testAPI('/career')}
-              style={{
-                padding: '10px',
-                background: '#2196f3',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '14px'
-              }}
-            >
-              GET /career
-            </button>
-            <button
               onClick={() => testAPI('/profile')}
               style={{
                 padding: '10px',
@@ -467,9 +417,6 @@ function AdminApp() {
           <VideoManager token={token} />
         )}
 
-        {currentView === 'career' && (
-          <CareerManager token={token} />
-        )}
 
         {currentView === 'profile' && (
           <ProfileManager token={token} />

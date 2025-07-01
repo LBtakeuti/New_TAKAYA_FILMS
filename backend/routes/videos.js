@@ -83,7 +83,7 @@ router.get('/:id', (req, res) => {
 
 // POST new video
 router.post('/', authenticateToken, upload.fields([
-  { name: 'video', maxCount: 1 },
+  { name: 'video_file', maxCount: 1 },
   { name: 'thumbnail', maxCount: 1 }
 ]), (req, res) => {
   const {
@@ -103,7 +103,7 @@ router.post('/', authenticateToken, upload.fields([
   }
 
   // Use YouTube URL if provided, otherwise use uploaded file
-  const video_url = youtube_url || (req.files?.video ? `/uploads/${req.files.video[0].filename}` : null);
+  const video_url = youtube_url || (req.files?.video_file ? `/uploads/${req.files.video_file[0].filename}` : null);
   const thumbnail_url = req.files?.thumbnail ? `/uploads/${req.files.thumbnail[0].filename}` : null;
 
   const query = `
@@ -127,7 +127,7 @@ router.post('/', authenticateToken, upload.fields([
 
 // PUT update video
 router.put('/:id', authenticateToken, upload.fields([
-  { name: 'video', maxCount: 1 },
+  { name: 'video_file', maxCount: 1 },
   { name: 'thumbnail', maxCount: 1 }
 ]), (req, res) => {
   const { id } = req.params;
@@ -154,7 +154,7 @@ router.put('/:id', authenticateToken, upload.fields([
     }
 
     // Use YouTube URL if provided, otherwise use uploaded file or keep existing
-    const video_url = youtube_url || (req.files?.video ? `/uploads/${req.files.video[0].filename}` : currentVideo.video_url);
+    const video_url = youtube_url || (req.files?.video_file ? `/uploads/${req.files.video_file[0].filename}` : currentVideo.video_url);
     const thumbnail_url = req.files?.thumbnail ? `/uploads/${req.files.thumbnail[0].filename}` : currentVideo.thumbnail_url;
 
     const query = `

@@ -10,9 +10,9 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
     origin: [
         process.env.FRONTEND_URL || 'http://localhost:3000',
-        'http://localhost:3002',
-        'http://localhost:3003',
-        'http://localhost:3001'
+        'http://localhost:3000',
+        'https://takaya-films.vercel.app',
+        /\.vercel\.app$/
     ],
     credentials: true
 }));

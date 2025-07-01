@@ -1,6 +1,12 @@
-# TAKAYA FILMS Portfolio
+# 🎬 TAKAYA FILMS Portfolio
 
 映像クリエイター TAKAYA のポートフォリオサイト + 管理システム
+
+## 🚀 デプロイ情報
+
+- **本番サイト**: (Vercelデプロイ後に更新)
+- **管理画面**: /admin
+- **技術スタック**: React + Supabase + Vercel
 
 ## 技術構成
 

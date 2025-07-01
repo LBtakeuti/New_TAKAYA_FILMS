@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm start)",
+      "Bash(lsof:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(PORT=3002 npm start)",
+      "Bash(PORT=3003 npm start)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(ls:*)",
+      "Bash(git submodule:*)",
+      "Bash(cat:*)",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(grep:*)",
+      "Bash(PORT=3001 npm start)",
+      "Bash(killall:*)",
+      "Bash(open:*)",
+      "Bash(npm run build:*)",
+      "Bash(vercel:*)",
+      "Bash(npx vercel:*)",
+      "Bash(echo $PWD)",
+      "Bash(/usr/bin/git status)",
+      "Bash(export:*)"
+    ],
+    "deny": []
+  }
+}

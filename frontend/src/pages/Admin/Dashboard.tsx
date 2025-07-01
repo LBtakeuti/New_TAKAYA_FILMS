@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Video, Career, Profile } from '../../types';
+import { Video, Profile } from '../../types';
 
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState({
     videos: 0,
-    careers: 0,
     profileUpdated: false
   });
   const navigate = useNavigate();
@@ -64,7 +63,7 @@ const Dashboard: React.FC = () => {
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {/* Stats Cards */}
         <div className="px-4 py-6 sm:px-0">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div className="bg-gray-800 overflow-hidden shadow rounded-lg">
               <div className="p-5">
                 <div className="flex items-center">
@@ -80,28 +79,6 @@ const Dashboard: React.FC = () => {
                       </dt>
                       <dd className="text-lg font-medium text-white">
                         {stats.videos}
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gray-800 overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                      <span className="text-white text-sm">💼</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-400 truncate">
-                        Career Entries
-                      </dt>
-                      <dd className="text-lg font-medium text-white">
-                        {stats.careers}
                       </dd>
                     </dl>
                   </div>
@@ -136,7 +113,7 @@ const Dashboard: React.FC = () => {
         {/* Quick Actions */}
         <div className="px-4 py-6 sm:px-0">
           <h2 className="text-lg font-medium text-white mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <button
               onClick={() => navigate('/admin/videos/new')}
               className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg text-center transition-colors"
@@ -151,14 +128,6 @@ const Dashboard: React.FC = () => {
             >
               <div className="text-2xl mb-2">📝</div>
               <div className="font-medium">Manage Videos</div>
-            </button>
-
-            <button
-              onClick={() => navigate('/admin/career')}
-              className="bg-green-600 hover:bg-green-700 text-white p-4 rounded-lg text-center transition-colors"
-            >
-              <div className="text-2xl mb-2">💼</div>
-              <div className="font-medium">Manage Career</div>
             </button>
 
             <button

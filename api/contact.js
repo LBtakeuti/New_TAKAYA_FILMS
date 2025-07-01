@@ -1,6 +1,4 @@
-const express = require('express');
 const https = require('https');
-const router = express.Router();
 
 // Slack Webhook設定
 const sendSlackMessage = (message) => {
@@ -56,7 +54,7 @@ const sendSlackMessage = (message) => {
 };
 
 // コンタクトフォーム送信
-router.post('/send', async (req, res) => {
+exports.sendContact = async (req, res) => {
     try {
         const { name, email, subject, message } = req.body;
 
@@ -109,6 +107,4 @@ ${message}
             error: 'お問い合わせの送信に失敗しました。しばらく時間をおいて再度お試しください。' 
         });
     }
-});
-
-module.exports = router;
+};

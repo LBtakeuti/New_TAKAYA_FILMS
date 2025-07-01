@@ -35,7 +35,8 @@ function VideoManager({ token }: VideoManagerProps) {
     status: 'published',
     featured: false,
     sort_order: 0,
-    youtube_url: ''
+    youtube_url: '',
+    video_file: null as File | null
   });
 
   useEffect(() => {
@@ -67,14 +68,49 @@ function VideoManager({ token }: VideoManagerProps) {
       
       const method = editingVideo ? 'PUT' : 'POST';
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
+      let response;
+      
+      if (formData.video_file) {
+        // ファイルアップロードの場合
+        const uploadFormData = new FormData();
+        uploadFormData.append('title', formData.title);
+        uploadFormData.append('description', formData.description);
+        uploadFormData.append('category', formData.category);
+        uploadFormData.append('client', formData.client);
+        uploadFormData.append('project_date', formData.project_date);
+        uploadFormData.append('status', formData.status);
+        uploadFormData.append('featured', formData.featured.toString());
+        uploadFormData.append('sort_order', formData.sort_order.toString());
+        uploadFormData.append('video_file', formData.video_file);
+
+        response = await fetch(url, {
+          method,
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: uploadFormData
+        });
+      } else {
+        // YouTube URLの場合
+        response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            title: formData.title,
+            description: formData.description,
+            category: formData.category,
+            client: formData.client,
+            project_date: formData.project_date,
+            status: formData.status,
+            featured: formData.featured,
+            sort_order: formData.sort_order,
+            youtube_url: formData.youtube_url
+          })
+        });
+      }
 
       if (response.ok) {
         fetchVideos();
@@ -101,7 +137,8 @@ function VideoManager({ token }: VideoManagerProps) {
       status: video.status,
       featured: video.featured,
       sort_order: video.sort_order,
-      youtube_url: video.video_url.includes('youtube') ? video.video_url : ''
+      youtube_url: video.video_url.includes('youtube') ? video.video_url : '',
+      video_file: null
     });
     setIsModalOpen(true);
   };
@@ -135,7 +172,8 @@ function VideoManager({ token }: VideoManagerProps) {
       status: 'published',
       featured: false,
       sort_order: 0,
-      youtube_url: ''
+      youtube_url: '',
+      video_file: null
     });
     setEditingVideo(null);
   };
@@ -300,6 +338,29 @@ function VideoManager({ token }: VideoManagerProps) {
                     boxSizing: 'border-box'
                   }}
                 />
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                  または動画ファイルをアップロード
+                </label>
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={(e) => setFormData({...formData, video_file: e.target.files?.[0] || null})}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                {formData.video_file && (
+                  <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '5px' }}>
+                    選択されたファイル: {formData.video_file.name}
+                  </p>
+                )}
               </div>
 
               <div style={{ marginBottom: '20px' }}>

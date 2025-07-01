@@ -1,18 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import ContactForm from './components/ContactForm';
-
-interface Video {
-  id: number;
-  title: string;
-  description: string;
-  video_url: string;
-  thumbnail_url: string;
-  category: string;
-  client: string;
-  project_date: string;
-  featured: boolean;
-}
+import { Video } from './types';
 
 interface Profile {
   id: number;
@@ -24,24 +13,13 @@ interface Profile {
   social_links: any;
 }
 
-interface Career {
-  id: number;
-  company_name: string;
-  position: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  is_current: boolean;
-  location: string;
-  achievements: string;
-}
-
 function App() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [careers, setCareers] = useState<Career[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(true);
+  const [playingVideo, setPlayingVideo] = useState<Video | null>(null);
+  const [hoverTimeouts, setHoverTimeouts] = useState<Map<number, NodeJS.Timeout>>(new Map());
 
   useEffect(() => {
     fetchData();
@@ -49,23 +27,21 @@ function App() {
 
   const fetchData = async () => {
     try {
-      const [videosRes, profileRes, careersRes] = await Promise.all([
+      const [videosRes, profileRes] = await Promise.all([
         fetch('http://localhost:5001/api/videos'),
-        fetch('http://localhost:5001/api/profile'),
-        fetch('http://localhost:5001/api/career')
+        fetch('http://localhost:5001/api/profile')
       ]);
 
-      const videosData = await videosRes.json();
-      setVideos(videosData);
+      if (videosRes.ok) {
+        const videosData = await videosRes.json();
+        // console.log('Videos data:', videosData); // デバッグ用
+        setVideos(videosData);
+      }
 
       if (profileRes.ok) {
         const profileData = await profileRes.json();
+        console.log('Profile data:', profileData); // デバッグ用
         setProfile(profileData);
-      }
-
-      if (careersRes.ok) {
-        const careersData = await careersRes.json();
-        setCareers(careersData);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -83,13 +59,51 @@ function App() {
     return url && (url.includes('youtube.com') || url.includes('youtu.be'));
   };
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('ja-JP', {
-      year: 'numeric',
-      month: 'long'
-    });
+  const getYouTubeVideoId = (url: string) => {
+    if (!url) return null;
+    
+    // youtube.com/watch?v=VIDEO_ID
+    const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=)([^&\n?#]+)/);
+    if (youtubeMatch) return youtubeMatch[1];
+    
+    // youtu.be/VIDEO_ID
+    const youtubeShortMatch = url.match(/(?:youtu\.be\/)([^&\n?#]+)/);
+    if (youtubeShortMatch) return youtubeShortMatch[1];
+    
+    // youtube.com/embed/VIDEO_ID
+    const embedMatch = url.match(/(?:youtube\.com\/embed\/)([^&\n?#]+)/);
+    if (embedMatch) return embedMatch[1];
+    
+    return null;
   };
+
+  const getYouTubeThumbnail = (url: string) => {
+    const videoId = getYouTubeVideoId(url);
+    if (!videoId) return null;
+    
+    // Use hqdefault for more reliable thumbnail display
+    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  };
+
+  const handleVideoClick = (video: Video) => {
+    setPlayingVideo(playingVideo?.id === video.id ? null : video);
+  };
+
+  const getYouTubeEmbedUrl = (url: string) => {
+    const videoId = getYouTubeVideoId(url);
+    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&showinfo=0` : null;
+  };
+
+  const isLocalVideoFile = (url: string) => {
+    return url.startsWith('/uploads/') && (url.includes('.mp4') || url.includes('.mov') || url.includes('.avi') || url.includes('.wmv'));
+  };
+
+  const getLocalVideoUrl = (url: string) => {
+    return `http://localhost:5001${url}`;
+  };
+
+
+
 
   return (
     <div className="App">
@@ -101,7 +115,6 @@ function App() {
             <li><a href="#portfolio">Portfolio</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
-            <li><a href="/admin" className="btn-secondary" style={{padding: '8px 16px', fontSize: '0.9rem'}}>Admin</a></li>
           </ul>
         </div>
       </nav>
@@ -141,14 +154,6 @@ function App() {
                   letterSpacing: '0.05em',
                   opacity: selectedCategory === category ? 1 : 0.6
                 }}
-                onMouseEnter={(e) => {
-                  const target = e.currentTarget as HTMLElement;
-                  target.style.opacity = '1';
-                }}
-                onMouseLeave={(e) => {
-                  const target = e.currentTarget as HTMLElement;
-                  target.style.opacity = selectedCategory === category ? '1' : '0.6';
-                }}
               >
                 {category === 'all' ? 'All' : category}
               </button>
@@ -169,10 +174,130 @@ function App() {
         ) : (
           <div className="portfolio-grid">
             {filteredVideos.map((video) => (
-              <div key={video.id} className="portfolio-item">
-                <div className="portfolio-image" style={{position: 'relative'}}>
-                  {isYouTubeUrl(video.video_url) ? '📺 YouTube Video' : '🎬 Video'}
-                  {video.featured && (
+              <div 
+                key={video.id} 
+                className="portfolio-item"
+                onClick={() => handleVideoClick(video)}
+                style={{cursor: 'pointer', position: 'relative'}}
+              >
+                <div className="portfolio-image" style={{position: 'relative', overflow: 'hidden', aspectRatio: '16/9'}}>
+                  {playingVideo?.id === video.id ? (
+                    // 動画プレイヤー表示
+                    <div style={{width: '100%', height: '100%', aspectRatio: '16/9'}}>
+                      {isYouTubeUrl(video.video_url) ? (
+                        <iframe
+                          src={getYouTubeEmbedUrl(video.video_url) || ''}
+                          style={{width: '100%', height: '100%', border: 'none', aspectRatio: '16/9'}}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                          title={video.title}
+                        />
+                      ) : isLocalVideoFile(video.video_url) ? (
+                        <video
+                          src={getLocalVideoUrl(video.video_url)}
+                          style={{width: '100%', height: '100%', aspectRatio: '16/9', objectFit: 'cover'}}
+                          controls
+                          autoPlay
+                          title={video.title}
+                        >
+                          ブラウザが動画の再生をサポートしていません。
+                        </video>
+                      ) : (
+                        <div style={{
+                          width: '100%', 
+                          height: '100%', 
+                          aspectRatio: '16/9',
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          background: '#f0f0f0',
+                          color: '#666'
+                        }}>
+                          サポートされていない動画形式です
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    // サムネイル表示
+                    <>
+                      {isYouTubeUrl(video.video_url) ? (
+                        <div style={{position: 'relative', width: '100%', height: '100%'}}>
+                          <img 
+                            src={getYouTubeThumbnail(video.video_url) || undefined}
+                            alt={video.title}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              filter: 'none !important',
+                              WebkitFilter: 'none !important',
+                              opacity: '1 !important',
+                              background: 'transparent'
+                            }}
+                            onLoad={(e) => {
+                              e.currentTarget.style.filter = 'none';
+                              e.currentTarget.style.webkitFilter = 'none';
+                              e.currentTarget.style.opacity = '1';
+                            }}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              const videoId = getYouTubeVideoId(video.video_url);
+                              if (videoId && target.src.includes('hqdefault')) {
+                                target.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+                              }
+                            }}
+                          />
+                          <div style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            background: 'rgba(0, 0, 0, 0.7)',
+                            borderRadius: '50%',
+                            width: '60px',
+                            height: '60px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'white',
+                            fontSize: '24px',
+                            pointerEvents: 'none',
+                            transition: 'all 0.3s ease',
+                            opacity: 0.8
+                          }}
+                          >
+                            ▶
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: '#f8f8f8',
+                          color: '#666',
+                          fontSize: '0.9rem'
+                        }}>
+                          {video.thumbnail_url ? (
+                            <img 
+                              src={video.thumbnail_url} 
+                              alt={video.title}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover'
+                              }}
+                            />
+                          ) : (
+                            '🎬 Video'
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {video.featured ? (
                     <span style={{
                       position: 'absolute',
                       top: '10px',
@@ -182,27 +307,157 @@ function App() {
                       padding: '4px 8px',
                       borderRadius: '12px',
                       fontSize: '0.7rem',
-                      fontWeight: '500'
+                      fontWeight: '500',
+                      zIndex: 2
                     }}>
                       Featured
                     </span>
-                  )}
-                </div>
-                <div className="portfolio-content">
-                  <h3 className="portfolio-title">{video.title}</h3>
-                  <p className="portfolio-description">{video.description}</p>
-                  {video.category && (
-                    <div style={{
-                      fontSize: '0.8rem',
-                      color: 'rgba(45, 55, 72, 0.5)',
-                      marginTop: '8px',
-                      display: 'flex',
-                      justifyContent: 'space-between'
+                  ) : null}
+                  {isYouTubeUrl(video.video_url) ? (
+                    <span style={{
+                      position: 'absolute',
+                      top: '10px',
+                      left: '10px',
+                      background: 'rgba(255, 0, 0, 0.9)',
+                      color: 'white',
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      fontSize: '0.7rem',
+                      fontWeight: '500',
+                      zIndex: 2
                     }}>
-                      <span>{video.category}</span>
+                      YouTube
+                    </span>
+                  ) : null}
+                </div>
+                <div className="portfolio-content" style={{ position: 'relative' }}>
+                  <div
+                    style={{
+                      position: 'relative',
+                      cursor: 'help'
+                    }}
+                    onMouseEnter={(e) => {
+                      // Clear any existing timeout for this video
+                      const existingTimeout = hoverTimeouts.get(video.id);
+                      if (existingTimeout) {
+                        clearTimeout(existingTimeout);
+                      }
+                      
+                      // Set new timeout for 1 second delay
+                      const newTimeout = setTimeout(() => {
+                        const tooltip = e.currentTarget.querySelector('.video-tooltip') as HTMLElement;
+                        if (tooltip) {
+                          tooltip.style.opacity = '1';
+                          tooltip.style.visibility = 'visible';
+                        }
+                      }, 1000);
+                      
+                      // Update timeouts map
+                      setHoverTimeouts(prev => {
+                        const newMap = new Map(prev);
+                        newMap.set(video.id, newTimeout);
+                        return newMap;
+                      });
+                    }}
+                    onMouseLeave={(e) => {
+                      // Clear timeout for this video
+                      const existingTimeout = hoverTimeouts.get(video.id);
+                      if (existingTimeout) {
+                        clearTimeout(existingTimeout);
+                        setHoverTimeouts(prev => {
+                          const newMap = new Map(prev);
+                          newMap.delete(video.id);
+                          return newMap;
+                        });
+                      }
+                      
+                      const tooltip = e.currentTarget.querySelector('.video-tooltip') as HTMLElement;
+                      if (tooltip) {
+                        tooltip.style.opacity = '0';
+                        tooltip.style.visibility = 'hidden';
+                      }
+                    }}
+                  >
+                    <h3 
+                      className="portfolio-title" 
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        lineHeight: '1.4',
+                        height: 'auto',
+                        minHeight: '2.8em'
+                      }}
+                    >
+                      {video.title}
+                    </h3>
+                    
+                    <div style={{ marginBottom: '12px', flex: 1 }}>
+                      <p 
+                        className="portfolio-description"
+                        style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          lineHeight: '1.6',
+                          margin: 0
+                        }}
+                      >
+                        {video.description}
+                      </p>
+                    </div>
+                    
+                    {/* Tooltip content */}
+                    <div
+                      className="video-tooltip"
+                      style={{
+                        position: 'absolute',
+                        bottom: '100%',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        marginBottom: '10px',
+                        background: '#F8F8F8',
+                        color: '#333',
+                        padding: '12px 16px',
+                        borderRadius: '6px',
+                        fontSize: '0.8rem',
+                        lineHeight: '1.4',
+                        maxWidth: '300px',
+                        minWidth: '250px',
+                        opacity: '0',
+                        visibility: 'hidden',
+                        pointerEvents: 'none',
+                        transition: 'opacity 0.3s ease, visibility 0.3s ease',
+                        zIndex: 20,
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                        border: '1px solid rgba(0, 0, 0, 0.1)'
+                      }}
+                    >
+                      <div style={{ fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem', color: '#222' }}>
+                        {video.title}
+                      </div>
+                      {video.description && (
+                        <div style={{ fontSize: '0.75rem', color: '#555', whiteSpace: 'pre-wrap' }}>
+                          {video.description}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div style={{
+                    fontSize: '0.8rem',
+                    color: 'rgba(45, 55, 72, 0.5)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      {video.category && <span>{video.category}</span>}
                       {video.client && <span>{video.client}</span>}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -234,66 +489,6 @@ function App() {
               )}
             </div>
 
-            {/* Career History */}
-            {careers.length > 0 && (
-              <div style={{marginBottom: '80px'}}>
-                <h4 style={{fontSize: '1.1rem', color: '#2d3748', marginBottom: '40px', textAlign: 'center', fontWeight: '400', letterSpacing: '0.02em'}}>Career</h4>
-                <div style={{textAlign: 'left', maxWidth: '700px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '30px'}}>
-                  {careers.map((career, index) => (
-                    <div key={career.id} style={{
-                      padding: '25px',
-                      background: 'rgba(255, 255, 255, 0.4)',
-                      borderRadius: '12px',
-                      backdropFilter: 'blur(10px)',
-                      border: career.is_current ? '2px solid rgba(76, 175, 80, 0.3)' : '1px solid rgba(255, 255, 255, 0.6)'
-                    }}>
-                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px'}}>
-                        <div>
-                          <h5 style={{margin: '0 0 5px 0', fontSize: '1.1rem', color: '#2d3748', fontWeight: '500'}}>
-                            {career.position}
-                            {career.is_current && (
-                              <span style={{
-                                marginLeft: '10px',
-                                background: 'rgba(76, 175, 80, 0.2)',
-                                color: 'rgba(76, 175, 80, 0.8)',
-                                padding: '3px 8px',
-                                borderRadius: '12px',
-                                fontSize: '0.7rem',
-                                fontWeight: '400'
-                              }}>
-                                現在
-                              </span>
-                            )}
-                          </h5>
-                          <p style={{margin: '0 0 5px 0', fontSize: '0.95rem', color: 'rgba(45, 55, 72, 0.8)', fontWeight: '400'}}>
-                            {career.company_name}
-                          </p>
-                        </div>
-                        <div style={{textAlign: 'right', fontSize: '0.85rem', color: 'rgba(45, 55, 72, 0.6)'}}>
-                          <div>{formatDate(career.start_date)} - {career.is_current ? '現在' : formatDate(career.end_date)}</div>
-                          {career.location && <div>{career.location}</div>}
-                        </div>
-                      </div>
-                      
-                      {career.description && (
-                        <p style={{fontSize: '0.9rem', lineHeight: '1.7', color: 'rgba(45, 55, 72, 0.7)', margin: '15px 0', fontWeight: '300'}}>
-                          {career.description}
-                        </p>
-                      )}
-                      
-                      {career.achievements && (
-                        <div style={{marginTop: '15px', padding: '15px', background: 'rgba(248, 250, 252, 0.6)', borderRadius: '8px'}}>
-                          <h6 style={{margin: '0 0 8px 0', fontSize: '0.85rem', color: 'rgba(45, 55, 72, 0.6)', fontWeight: '400'}}>主な実績・成果</h6>
-                          <p style={{margin: 0, fontSize: '0.85rem', lineHeight: '1.6', color: 'rgba(45, 55, 72, 0.7)', fontWeight: '300'}}>
-                            {career.achievements}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Skills */}
             {profile?.skills && profile.skills.length > 0 && (
@@ -354,8 +549,125 @@ function App() {
             プロジェクトのご相談やお問い合わせは、お気軽にご連絡ください。
           </p>
           <ContactForm />
+          
+          {/* Instagram Logo - Central Position */}
+          {profile?.social_links?.instagram && (
+            <div style={{
+              marginTop: '3rem',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}>
+              <a
+                href={profile.social_links.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-block',
+                  width: '40px',
+                  height: '40px',
+                  border: '1px solid #999',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  transition: 'all 0.3s ease',
+                  background: 'transparent',
+                  position: 'relative'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#333';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#999';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              >
+                <svg 
+                  viewBox="0 0 24 24" 
+                  width="24" 
+                  height="24" 
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)'
+                  }}
+                  fill="none" 
+                  stroke="#666" 
+                  strokeWidth="1.2"
+                >
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                  <circle cx="12" cy="12" r="3"/>
+                  <circle cx="17.5" cy="6.5" r="0.5" fill="#666"/>
+                </svg>
+              </a>
+            </div>
+          )}
+          
+          {/* Other Social Links */}
+          {profile?.social_links && (profile?.social_links?.youtube || profile?.social_links?.vimeo) && (
+            <div style={{marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid rgba(0, 0, 0, 0.1)'}}>
+              <p style={{fontSize: '0.9rem', color: '#666', marginBottom: '1.5rem'}}>
+                Follow us on social media
+              </p>
+              <div style={{display: 'flex', justifyContent: 'center', gap: '20px'}}>
+                {profile.social_links.youtube && (
+                  <a
+                    href={profile.social_links.youtube}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'flex',
+                      padding: '12px',
+                      background: '#FF0000',
+                      borderRadius: '50%',
+                      color: 'white',
+                      textDecoration: 'none',
+                      transition: 'all 0.3s ease',
+                      fontSize: '20px',
+                      width: '48px',
+                      height: '48px',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                  </a>
+                )}
+                
+                {profile.social_links.vimeo && (
+                  <a
+                    href={profile.social_links.vimeo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'flex',
+                      padding: '12px',
+                      background: '#1ab7ea',
+                      borderRadius: '50%',
+                      color: 'white',
+                      textDecoration: 'none',
+                      transition: 'all 0.3s ease',
+                      fontSize: '20px',
+                      width: '48px',
+                      height: '48px',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                      <path d="M23.977 6.416c-.105 2.338-1.739 5.543-4.894 9.609-3.268 4.247-6.026 6.37-8.29 6.37-1.409 0-2.578-1.294-3.553-3.881L5.322 11.4C4.603 8.816 3.834 7.522 3.01 7.522c-.179 0-.806.378-1.881 1.132L0 7.197c1.185-1.044 2.351-2.084 3.501-3.128C5.08 2.701 6.266 1.984 7.055 1.91c1.867-.18 3.016 1.1 3.447 3.838.465 2.953.789 4.789.971 5.507.539 2.45 1.131 3.674 1.776 3.674.502 0 1.256-.796 2.265-2.385 1.004-1.589 1.54-2.797 1.612-3.628.144-1.371-.395-2.061-1.614-2.061-.574 0-1.167.121-1.777.391 1.186-3.868 3.434-5.757 6.762-5.637 2.473.06 3.628 1.664 3.493 4.797l-.013.01z"/>
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </section>
+
     </div>
   );
 }

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Video } from '../types';
+import VideoPlayerModal from '../components/VideoPlayerModal';
 
 const Portfolio: React.FC = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(true);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const categories = ['all', 'commercial', 'corporate', 'music', 'event'];
 
@@ -27,6 +30,53 @@ const Portfolio: React.FC = () => {
   const filteredVideos = selectedCategory === 'all' 
     ? videos 
     : videos.filter(video => video.category.toLowerCase() === selectedCategory);
+
+  const isYouTubeUrl = (url: string) => {
+    return url.includes('youtube.com') || url.includes('youtu.be');
+  };
+
+  const isLocalVideoFile = (url: string) => {
+    return url.startsWith('/uploads/') && (url.includes('.mp4') || url.includes('.mov') || url.includes('.avi') || url.includes('.wmv'));
+  };
+
+  const getYouTubeVideoId = (url: string) => {
+    if (!url) return null;
+    const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=)([^&\n?#]+)/);
+    if (youtubeMatch) return youtubeMatch[1];
+    const youtubeShortMatch = url.match(/(?:youtu\.be\/)([^&\n?#]+)/);
+    if (youtubeShortMatch) return youtubeShortMatch[1];
+    const embedMatch = url.match(/(?:youtube\.com\/embed\/)([^&\n?#]+)/);
+    if (embedMatch) return embedMatch[1];
+    return null;
+  };
+
+  const getThumbnailUrl = (video: Video) => {
+    if (video.thumbnail_url) {
+      return video.thumbnail_url.startsWith('/uploads/') 
+        ? `http://localhost:5001${video.thumbnail_url}` 
+        : video.thumbnail_url;
+    }
+    
+    if (isYouTubeUrl(video.video_url)) {
+      const videoId = getYouTubeVideoId(video.video_url);
+      if (videoId) {
+        // 高品質なサムネイルを試し、失敗したらデフォルトにフォールバック
+        return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      }
+    }
+    
+    return null;
+  };
+
+  const handleVideoClick = (video: Video) => {
+    setSelectedVideo(video);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedVideo(null);
+  };
 
   if (loading) {
     return (
@@ -78,21 +128,50 @@ const Portfolio: React.FC = () => {
               <p className="text-gray-400">Videos will be displayed here once they are uploaded through the admin panel.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredVideos.map((video) => (
-                <div key={video.id} className="bg-gray-900 rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform">
-                  <div className="aspect-video bg-gray-700 flex items-center justify-center">
-                    {video.thumbnail_url ? (
-                      <img 
-                        src={video.thumbnail_url} 
-                        alt={video.title}
-                        className="w-full h-full object-cover"
-                      />
+                <div 
+                  key={video.id} 
+                  className="bg-gray-900 rounded-lg overflow-hidden cursor-pointer"
+                  onClick={() => handleVideoClick(video)}
+                >
+                  <div className="aspect-video bg-gray-900 relative group overflow-hidden">
+                    {getThumbnailUrl(video) ? (
+                      <>
+                        <img 
+                          src={getThumbnailUrl(video) || ''} 
+                          alt={video.title}
+                          className="w-full h-full object-cover block"
+                          style={{ filter: 'none', WebkitFilter: 'none' }}
+                          onLoad={(e) => {
+                            e.currentTarget.style.filter = 'none';
+                            e.currentTarget.style.webkitFilter = 'none';
+                          }}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="w-16 h-16 bg-black bg-opacity-60 rounded-full flex items-center justify-center">
+                            <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M8 5v14l11-7z"/>
+                            </svg>
+                          </div>
+                        </div>
+                      </>
                     ) : (
-                      <span className="text-gray-400">No Thumbnail</span>
+                      <>
+                        <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-800">
+                          <span>No Thumbnail</span>
+                        </div>
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="w-16 h-16 bg-black bg-opacity-60 rounded-full flex items-center justify-center">
+                            <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M8 5v14l11-7z"/>
+                            </svg>
+                          </div>
+                        </div>
+                      </>
                     )}
                   </div>
-                  <div className="p-6">
+                  <div className="p-4">
                     <h3 className="text-xl font-semibold mb-2">{video.title}</h3>
                     <p className="text-gray-400 mb-4 line-clamp-3">{video.description}</p>
                     <div className="flex justify-between items-center">
@@ -112,6 +191,13 @@ const Portfolio: React.FC = () => {
           )}
         </div>
       </section>
+
+      {/* Video Player Modal */}
+      <VideoPlayerModal
+        video={selectedVideo}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };
