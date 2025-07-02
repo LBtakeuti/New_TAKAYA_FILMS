@@ -11,16 +11,24 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    try {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
 
-    if (!token || !userData) {
+      if (!token || !userData) {
+        navigate('/admin/login');
+        return;
+      }
+
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+      // Load dashboard stats here
+    } catch (error) {
+      console.error('Error loading user data:', error);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       navigate('/admin/login');
-      return;
     }
-
-    setUser(JSON.parse(userData));
-    // Load dashboard stats here
   }, [navigate]);
 
   const handleLogout = () => {

@@ -2,17 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from './utils/api';
 import './App.css';
 import ContactForm from './components/ContactForm';
-import { Video } from './types';
-
-interface Profile {
-  id: number;
-  name: string;
-  title: string;
-  bio: string;
-  skills: string[];
-  services: string[];
-  social_links: any;
-}
+import { Video, Profile } from './types';
 
 function App() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -29,19 +19,72 @@ function App() {
   const fetchData = async () => {
     try {
       const [videosRes, profileRes] = await Promise.all([
-        api.get('/videos'),
-        api.get('/profile')
+        api.get('/videos').catch(err => {
+          console.error('Videos API error:', err);
+          return { data: [] };
+        }),
+        api.get('/profile').catch(err => {
+          console.error('Profile API error:', err);
+          return { 
+            data: { 
+              id: 0,
+              name: 'TAKAYA FILMS', 
+              title: 'Film Director', 
+              bio: '',
+              profile_image_url: '',
+              email: '',
+              phone: '',
+              location: '',
+              website: '',
+              social_links: {},
+              skills: [],
+              services: [],
+              updated_at: ''
+            } 
+          };
+        })
       ]);
 
-      const videosData = videosRes.data;
-      // console.log('Videos data:', videosData); // デバッグ用
+      const videosData = videosRes.data || [];
+      console.log('Videos data:', videosData);
       setVideos(videosData);
 
-      const profileData = profileRes.data;
-      console.log('Profile data:', profileData); // デバッグ用
+      const profileData = profileRes.data || { 
+        id: 0,
+        name: 'TAKAYA FILMS', 
+        title: 'Film Director', 
+        bio: '',
+        profile_image_url: '',
+        email: '',
+        phone: '',
+        location: '',
+        website: '',
+        social_links: {},
+        skills: [],
+        services: [],
+        updated_at: ''
+      };
+      console.log('Profile data:', profileData);
       setProfile(profileData);
     } catch (error) {
       console.error('Error fetching data:', error);
+      // Set default data to prevent white screen
+      setVideos([]);
+      setProfile({ 
+        id: 0,
+        name: 'TAKAYA FILMS', 
+        title: 'Film Director', 
+        bio: '',
+        profile_image_url: '',
+        email: '',
+        phone: '',
+        location: '',
+        website: '',
+        social_links: {},
+        skills: [],
+        services: [],
+        updated_at: ''
+      });
     } finally {
       setLoading(false);
     }

@@ -32,7 +32,18 @@ const Login: React.FC = () => {
         navigate('/admin/dashboard');
       }
     } catch (error: any) {
-      setError(error.response?.data?.error || 'Login failed');
+      console.error('Login error:', error);
+      let errorMessage = 'ログインに失敗しました';
+      
+      if (error.userMessage) {
+        errorMessage = error.userMessage;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (!error.response) {
+        errorMessage = 'サーバーに接続できません。ネットワークを確認してください。';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

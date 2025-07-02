@@ -39,9 +39,9 @@ export interface Profile {
   phone: string;
   location: string;
   website: string;
-  social_links: string;
-  skills: string;
-  services: string;
+  social_links: any;
+  skills: string[];
+  services: string[];
   updated_at: string;
 }
 

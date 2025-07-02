@@ -1,21 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
-
-interface Profile {
-  id: number;
-  name: string;
-  title: string;
-  bio: string;
-  profile_image_url: string;
-  email: string;
-  phone: string;
-  location: string;
-  website: string;
-  social_links: any;
-  skills: string[];
-  services: string[];
-  instagram_url?: string;
-}
+import { Profile } from '../types';
 
 interface ProfileManagerProps {
   token: string;
