@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import VideoManager from './components/VideoManager';
 import ProfileManager from './components/ProfileManager';
+import api from './utils/api';
 
 // Simple Admin Interface for Testing
 function AdminApp() {
@@ -15,25 +16,15 @@ function AdminApp() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5001/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      });
+      const response = await api.post('/auth/login', credentials);
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        setToken(data.token);
-        setIsLoggedIn(true);
-      } else {
-        setError(data.error || 'Login failed');
-      }
-    } catch (error) {
-      setError('接続エラー: バックエンドサーバーに接続できません');
+      localStorage.setItem('token', data.token);
+      setToken(data.token);
+      setIsLoggedIn(true);
+    } catch (error: any) {
+      setError(error.response?.data?.error || '接続エラー: バックエンドサーバーに接続できません');
     }
   };
 
@@ -47,15 +38,8 @@ function AdminApp() {
 
   const testAPI = async (endpoint: string) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5001/api${endpoint}`, {
-        headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-      alert(`API Test Result:\n${JSON.stringify(data, null, 2)}`);
+      const response = await api.get(endpoint);
+      alert(`API Test Result:\n${JSON.stringify(response.data, null, 2)}`);
     } catch (error) {
       alert(`API Error: ${error}`);
     }

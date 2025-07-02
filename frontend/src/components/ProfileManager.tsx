@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../utils/api';
 
 interface Profile {
   id: number;
@@ -52,29 +53,27 @@ function ProfileManager({ token }: ProfileManagerProps) {
 
   const fetchProfile = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setProfile(data);
-        setFormData({
-          name: data.name || '',
-          title: data.title || '',
-          bio: data.bio || '',
-          email: data.email || '',
-          phone: data.phone || '',
-          location: data.location || '',
-          website: data.website || '',
-          social_links: data.social_links || {
-            instagram: '',
-            youtube: '',
-            vimeo: '',
-            linkedin: '',
-            twitter: ''
-          },
-          skills: data.skills || [],
-          services: data.services || []
-        });
-      }
+      const response = await api.get('/profile');
+      const data = response.data;
+      setProfile(data);
+      setFormData({
+        name: data.name || '',
+        title: data.title || '',
+        bio: data.bio || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        location: data.location || '',
+        website: data.website || '',
+        social_links: data.social_links || {
+          instagram: '',
+          youtube: '',
+          vimeo: '',
+          linkedin: '',
+          twitter: ''
+        },
+        skills: data.skills || [],
+        services: data.services || []
+      });
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
@@ -85,21 +84,9 @@ function ProfileManager({ token }: ProfileManagerProps) {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5001/api/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        fetchProfile();
-        alert('プロフィールを更新しました');
-      } else {
-        alert('エラーが発生しました');
-      }
+      await api.put('/profile', formData);
+      fetchProfile();
+      alert('プロフィールを更新しました');
     } catch (error) {
       alert('エラーが発生しました');
     } finally {

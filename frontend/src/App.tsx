@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from './utils/api';
 import './App.css';
 import ContactForm from './components/ContactForm';
 import { Video } from './types';
@@ -28,21 +29,17 @@ function App() {
   const fetchData = async () => {
     try {
       const [videosRes, profileRes] = await Promise.all([
-        fetch('http://localhost:5001/api/videos'),
-        fetch('http://localhost:5001/api/profile')
+        api.get('/videos'),
+        api.get('/profile')
       ]);
 
-      if (videosRes.ok) {
-        const videosData = await videosRes.json();
-        // console.log('Videos data:', videosData); // デバッグ用
-        setVideos(videosData);
-      }
+      const videosData = videosRes.data;
+      // console.log('Videos data:', videosData); // デバッグ用
+      setVideos(videosData);
 
-      if (profileRes.ok) {
-        const profileData = await profileRes.json();
-        console.log('Profile data:', profileData); // デバッグ用
-        setProfile(profileData);
-      }
+      const profileData = profileRes.data;
+      console.log('Profile data:', profileData); // デバッグ用
+      setProfile(profileData);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -99,7 +96,8 @@ function App() {
   };
 
   const getLocalVideoUrl = (url: string) => {
-    return `http://localhost:5001${url}`;
+    const baseUrl = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5001';
+    return `${baseUrl}${url}`;
   };
 
 
