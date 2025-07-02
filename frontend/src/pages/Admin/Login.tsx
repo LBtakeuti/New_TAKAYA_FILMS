@@ -4,8 +4,8 @@ import api from '../../utils/api';
 
 const Login: React.FC = () => {
   const [credentials, setCredentials] = useState({
-    username: '',
-    password: ''
+    username: 'admin',
+    password: 'admin123'
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -105,6 +105,17 @@ const Login: React.FC = () => {
           <p className="text-sm text-gray-400">
             Default credentials: admin / admin123
           </p>
+          <button
+            type="button"
+            onClick={() => {
+              setCredentials({ username: 'admin', password: 'admin123' });
+              const form = document.querySelector('form') as HTMLFormElement;
+              form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+            }}
+            className="mt-2 text-sm text-blue-400 hover:text-blue-300 underline"
+          >
+            ワンクリックログイン
+          </button>
         </div>
       </div>
     </div>

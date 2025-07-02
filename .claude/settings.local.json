@@ -31,7 +31,8 @@
       "Bash(chmod:*)",
       "Bash(touch:*)",
       "Bash(DISABLE_ESLINT_PLUGIN=true CI=false npm run build)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }
