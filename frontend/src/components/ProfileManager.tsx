@@ -13,6 +13,7 @@ interface Profile {
   social_links: any;
   skills: string[];
   services: string[];
+  instagram_url?: string;
 }
 
 interface ProfileManagerProps {
