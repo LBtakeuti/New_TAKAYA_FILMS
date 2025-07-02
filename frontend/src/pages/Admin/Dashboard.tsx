@@ -39,79 +39,187 @@ const Dashboard: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div style={{
+        minHeight: '100vh',
+        background: '#1a1a1a',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ color: '#fff', fontSize: '18px' }}>Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div style={{
+      minHeight: '100vh',
+      background: '#1a1a1a',
+      fontFamily: 'Hiragino Sans, Yu Gothic Medium, Meiryo, MS PGothic, sans-serif'
+    }}>
       {/* Header */}
-      <header className="bg-gray-800 shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-white">Admin Dashboard</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-300">Welcome, {user.username}</span>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-              >
-                Logout
-              </button>
-            </div>
+      <header style={{
+        background: '#2a2a2a',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+        padding: '0 20px'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          height: '64px'
+        }}>
+          <div>
+            <h1 style={{
+              fontSize: '1.25rem',
+              fontWeight: '600',
+              color: '#fff',
+              margin: 0
+            }}>
+              TAKAYA FILMS Admin Dashboard
+            </h1>
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            <span style={{ color: '#ccc' }}>Welcome, {user.username}</span>
+            <button
+              onClick={handleLogout}
+              style={{
+                background: '#dc2626',
+                color: '#fff',
+                padding: '8px 16px',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = '#b91c1c';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = '#dc2626';
+              }}
+            >
+              Logout
+            </button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <main style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '40px 20px'
+      }}>
+        {/* Welcome Message */}
+        <div style={{
+          background: '#2a2a2a',
+          padding: '30px',
+          borderRadius: '8px',
+          marginBottom: '40px',
+          textAlign: 'center'
+        }}>
+          <h2 style={{
+            fontSize: '1.5rem',
+            color: '#fff',
+            marginBottom: '10px'
+          }}>
+            ログイン成功！
+          </h2>
+          <p style={{
+            color: '#ccc',
+            fontSize: '1rem',
+            margin: 0
+          }}>
+            管理画面にアクセスできています。今後、ここでビデオの管理やプロフィールの更新が可能になります。
+          </p>
+        </div>
+
         {/* Stats Cards */}
-        <div className="px-4 py-6 sm:px-0">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <div className="bg-gray-800 overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                      <span className="text-white text-sm">📹</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-400 truncate">
-                        Total Videos
-                      </dt>
-                      <dd className="text-lg font-medium text-white">
-                        {stats.videos}
-                      </dd>
-                    </dl>
-                  </div>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '20px',
+          marginBottom: '40px'
+        }}>
+          <div style={{
+            background: '#2a2a2a',
+            padding: '20px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                background: '#3b82f6',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: '16px'
+              }}>
+                <span style={{ color: '#fff', fontSize: '14px' }}>📹</span>
+              </div>
+              <div>
+                <div style={{
+                  fontSize: '14px',
+                  color: '#999',
+                  marginBottom: '4px'
+                }}>
+                  Total Videos
+                </div>
+                <div style={{
+                  fontSize: '18px',
+                  fontWeight: '500',
+                  color: '#fff'
+                }}>
+                  {stats.videos}
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="bg-gray-800 overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
-                      <span className="text-white text-sm">👤</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-400 truncate">
-                        Profile Status
-                      </dt>
-                      <dd className="text-lg font-medium text-white">
-                        {stats.profileUpdated ? 'Updated' : 'Needs Update'}
-                      </dd>
-                    </dl>
-                  </div>
+          <div style={{
+            background: '#2a2a2a',
+            padding: '20px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                background: '#10b981',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: '16px'
+              }}>
+                <span style={{ color: '#fff', fontSize: '14px' }}>✅</span>
+              </div>
+              <div>
+                <div style={{
+                  fontSize: '14px',
+                  color: '#999',
+                  marginBottom: '4px'
+                }}>
+                  Authentication Status
+                </div>
+                <div style={{
+                  fontSize: '18px',
+                  fontWeight: '500',
+                  color: '#10b981'
+                }}>
+                  Authenticated
                 </div>
               </div>
             </div>
@@ -119,44 +227,56 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="px-4 py-6 sm:px-0">
-          <h2 className="text-lg font-medium text-white mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <button
-              onClick={() => navigate('/admin/videos/new')}
-              className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg text-center transition-colors"
-            >
-              <div className="text-2xl mb-2">📹</div>
-              <div className="font-medium">Add New Video</div>
+        <div style={{
+          background: '#2a2a2a',
+          padding: '30px',
+          borderRadius: '8px'
+        }}>
+          <h3 style={{
+            fontSize: '1.25rem',
+            color: '#fff',
+            marginBottom: '20px'
+          }}>
+            クイックアクション
+          </h3>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '15px'
+          }}>
+            <button style={{
+              background: '#3b82f6',
+              color: '#fff',
+              padding: '12px 20px',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '14px',
+              cursor: 'pointer'
+            }}>
+              ビデオ管理
             </button>
-
-            <button
-              onClick={() => navigate('/admin/videos')}
-              className="bg-gray-700 hover:bg-gray-600 text-white p-4 rounded-lg text-center transition-colors"
-            >
-              <div className="text-2xl mb-2">📝</div>
-              <div className="font-medium">Manage Videos</div>
+            <button style={{
+              background: '#8b5cf6',
+              color: '#fff',
+              padding: '12px 20px',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '14px',
+              cursor: 'pointer'
+            }}>
+              プロフィール編集
             </button>
-
-            <button
-              onClick={() => navigate('/admin/profile')}
-              className="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg text-center transition-colors"
-            >
-              <div className="text-2xl mb-2">👤</div>
-              <div className="font-medium">Edit Profile</div>
+            <button style={{
+              background: '#10b981',
+              color: '#fff',
+              padding: '12px 20px',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '14px',
+              cursor: 'pointer'
+            }}>
+              サイト確認
             </button>
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="px-4 py-6 sm:px-0">
-          <h2 className="text-lg font-medium text-white mb-4">Recent Activity</h2>
-          <div className="bg-gray-800 shadow overflow-hidden sm:rounded-md">
-            <div className="px-4 py-5 sm:p-6">
-              <p className="text-gray-400 text-center">
-                No recent activity to display.
-              </p>
-            </div>
           </div>
         </div>
       </main>
