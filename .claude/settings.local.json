@@ -29,7 +29,8 @@
       "Bash(/usr/bin/git status)",
       "Bash(export:*)",
       "Bash(chmod:*)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(DISABLE_ESLINT_PLUGIN=true CI=false npm run build)"
     ],
     "deny": []
   }

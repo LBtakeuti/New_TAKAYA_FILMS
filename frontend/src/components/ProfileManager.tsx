@@ -21,7 +21,7 @@ interface ProfileManagerProps {
 }
 
 function ProfileManager({ token }: ProfileManagerProps) {
-  const [profile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(false);
   const [skillInput, setSkillInput] = useState('');
   const [serviceInput, setServiceInput] = useState('');
