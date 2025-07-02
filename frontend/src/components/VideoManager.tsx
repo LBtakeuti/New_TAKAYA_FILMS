@@ -41,7 +41,8 @@ function VideoManager({ token }: VideoManagerProps) {
 
   useEffect(() => {
     fetchVideos();
-  }, [fetchVideos]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchVideos = useCallback(async () => {
     try {

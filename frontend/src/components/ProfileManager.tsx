@@ -21,6 +21,7 @@ interface ProfileManagerProps {
 }
 
 function ProfileManager({ token }: ProfileManagerProps) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(false);
   const [skillInput, setSkillInput] = useState('');
