@@ -532,7 +532,7 @@ function App() {
 
 
             {/* Skills */}
-            {profile?.skills && profile.skills.length > 0 && (
+            {profile?.skills && Array.isArray(profile.skills) && profile.skills.length > 0 && (
               <div style={{textAlign: 'center', marginBottom: '60px'}}>
                 <h4 style={{fontSize: '1.1rem', color: '#2d3748', marginBottom: '40px', fontWeight: '400', letterSpacing: '0.02em'}}>Skills</h4>
                 <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', maxWidth: '600px', margin: '0 auto'}}>
@@ -556,7 +556,7 @@ function App() {
             )}
 
             {/* Services */}
-            {profile?.services && profile.services.length > 0 && (
+            {profile?.services && Array.isArray(profile.services) && profile.services.length > 0 && (
               <div style={{textAlign: 'center'}}>
                 <h4 style={{fontSize: '1.1rem', color: '#2d3748', marginBottom: '40px', fontWeight: '400', letterSpacing: '0.02em'}}>Services</h4>
                 <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', maxWidth: '600px', margin: '0 auto'}}>
@@ -592,7 +592,7 @@ function App() {
           <ContactForm />
           
           {/* Instagram Logo - Central Position */}
-          {profile?.social_links?.instagram && (
+          {profile?.social_links && typeof profile.social_links === 'object' && profile.social_links.instagram && (
             <div style={{
               marginTop: '3rem',
               display: 'flex',
@@ -646,7 +646,7 @@ function App() {
           )}
           
           {/* Other Social Links */}
-          {profile?.social_links && (profile?.social_links?.youtube || profile?.social_links?.vimeo) && (
+          {profile?.social_links && typeof profile.social_links === 'object' && (profile.social_links.youtube || profile.social_links.vimeo) && (
             <div style={{marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid rgba(0, 0, 0, 0.1)'}}>
               <p style={{fontSize: '0.9rem', color: '#666', marginBottom: '1.5rem'}}>
                 Follow us on social media
