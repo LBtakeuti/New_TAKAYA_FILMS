@@ -18,6 +18,7 @@ frontend/build/
 database/*.db
 database/*.sqlite
 database/*.sqlite3
+*.db
 
 # Uploads
 backend/uploads/*
@@ -41,3 +42,6 @@ Thumbs.db
 
 # React
 frontend/.eslintcache
+
+# Vercel
+.vercel

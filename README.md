@@ -4,9 +4,10 @@
 
 ## 🚀 デプロイ情報
 
-- **本番サイト**: (Vercelデプロイ後に更新)
-- **管理画面**: /admin
-- **技術スタック**: React + Supabase + Vercel
+- **本番サイト**: https://your-project.vercel.app (デプロイ後に更新)
+- **管理画面**: https://your-project.vercel.app/admin
+- **技術スタック**: React + Supabase + Vercel + Slack
+- **初期ログイン**: admin / admin123
 
 ## 技術構成
 

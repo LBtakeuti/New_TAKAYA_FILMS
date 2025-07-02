@@ -1,0 +1,33 @@
+# TAKAYA FILMS - Vercel デプロイコマンド集
+
+## 1. JWT Secret生成
+node jwt-secret-generator.js
+
+## 2. Vercelデプロイ（初回）
+npx vercel
+
+## 3. 環境変数設定（コマンドライン）
+npx vercel env add SUPABASE_URL production
+npx vercel env add SUPABASE_ANON_KEY production
+npx vercel env add JWT_SECRET production
+npx vercel env add SLACK_WEBHOOK_URL production
+npx vercel env add NODE_ENV production
+
+## 4. 本番デプロイ
+npx vercel --prod
+
+## 5. デプロイ状態確認
+npx vercel ls
+
+## 6. ログ確認
+npx vercel logs
+
+## 7. 環境変数確認
+npx vercel env ls
+
+## 重要な値の例：
+NODE_ENV = production
+SUPABASE_URL = https://your-project.supabase.co
+SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+JWT_SECRET = (jwt-secret-generator.jsで生成した値)
+SLACK_WEBHOOK_URL = https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX

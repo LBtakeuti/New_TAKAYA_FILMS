@@ -27,7 +27,9 @@
       "Bash(npx vercel:*)",
       "Bash(echo $PWD)",
       "Bash(/usr/bin/git status)",
-      "Bash(export:*)"
+      "Bash(export:*)",
+      "Bash(chmod:*)",
+      "Bash(touch:*)"
     ],
     "deny": []
   }
