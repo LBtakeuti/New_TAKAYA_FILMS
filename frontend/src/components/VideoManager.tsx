@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Video {
   id: number;
@@ -44,7 +44,7 @@ function VideoManager({ token }: VideoManagerProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchVideos = useCallback(async () => {
+  const fetchVideos = async () => {
     try {
       const response = await fetch('http://localhost:5001/api/videos/admin', {
         headers: {
@@ -56,7 +56,7 @@ function VideoManager({ token }: VideoManagerProps) {
     } catch (error) {
       console.error('Error fetching videos:', error);
     }
-  }, [token]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
