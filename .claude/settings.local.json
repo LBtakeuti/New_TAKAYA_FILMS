@@ -32,7 +32,8 @@
       "Bash(touch:*)",
       "Bash(DISABLE_ESLINT_PLUGIN=true CI=false npm run build)",
       "Bash(rg:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(DISABLE_ESLINT_PLUGIN=true CI=false npm run build --prefix frontend)"
     ],
     "deny": []
   }

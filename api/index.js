@@ -1,12 +1,7 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
 const authHandlers = require('./auth');
 const profileHandlers = require('./profile');
 const contactHandlers = require('./contact');
-
-// データベース設定
-const dbPath = path.join(__dirname, '..', 'database.db');
-const db = new sqlite3.Database(dbPath);
+const videoHandlers = require('./videos');
 
 // API ルートハンドラー
 module.exports = (req, res) => {
@@ -44,8 +39,7 @@ module.exports = (req, res) => {
   }
   
   if (url.startsWith('/api/videos')) {
-    const videosModule = require('./videos');
-    return videosModule(req, res);
+    return videoHandlers(req, res);
   }
   
   if (url.startsWith('/api/test') && method === 'GET') {
