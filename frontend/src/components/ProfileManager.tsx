@@ -114,11 +114,10 @@ function ProfileManager({ token }: ProfileManagerProps) {
   };
 
   return (
-    <div style={{ padding: '30px' }}>
+    <div style={{ padding: '0' }}>
       {/* Header */}
       <div style={{ marginBottom: '30px' }}>
-        <h2 style={{ margin: 0, color: '#333' }}>プロフィール編集</h2>
-        <p style={{ color: '#666', margin: '5px 0 0 0' }}>
+        <p style={{ color: '#ccc', margin: '0', fontSize: '14px' }}>
           サイトに表示される個人情報を管理できます
         </p>
       </div>
@@ -126,17 +125,17 @@ function ProfileManager({ token }: ProfileManagerProps) {
       <form onSubmit={handleSubmit}>
         {/* Basic Information */}
         <div style={{
-          background: 'white',
+          background: '#2a2a2a',
           borderRadius: '8px',
           padding: '25px',
           marginBottom: '20px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
         }}>
-          <h3 style={{ margin: '0 0 20px 0', color: '#333' }}>基本情報</h3>
+          <h3 style={{ margin: '0 0 20px 0', color: '#fff' }}>基本情報</h3>
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                 名前 *
               </label>
               <input
@@ -146,7 +145,9 @@ function ProfileManager({ token }: ProfileManagerProps) {
                 style={{
                   width: '100%',
                   padding: '10px',
-                  border: '1px solid #ddd',
+                  background: '#3a3a3a',
+                  color: '#fff',
+                  border: '1px solid #555',
                   borderRadius: '4px',
                   boxSizing: 'border-box'
                 }}
@@ -155,7 +156,7 @@ function ProfileManager({ token }: ProfileManagerProps) {
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                 肩書き・職業
               </label>
               <input
@@ -166,7 +167,9 @@ function ProfileManager({ token }: ProfileManagerProps) {
                 style={{
                   width: '100%',
                   padding: '10px',
-                  border: '1px solid #ddd',
+                  background: '#3a3a3a',
+                  color: '#fff',
+                  border: '1px solid #555',
                   borderRadius: '4px',
                   boxSizing: 'border-box'
                 }}
@@ -195,7 +198,7 @@ function ProfileManager({ token }: ProfileManagerProps) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                 メールアドレス
               </label>
               <input
@@ -205,7 +208,9 @@ function ProfileManager({ token }: ProfileManagerProps) {
                 style={{
                   width: '100%',
                   padding: '10px',
-                  border: '1px solid #ddd',
+                  background: '#3a3a3a',
+                  color: '#fff',
+                  border: '1px solid #555',
                   borderRadius: '4px',
                   boxSizing: 'border-box'
                 }}
@@ -213,7 +218,7 @@ function ProfileManager({ token }: ProfileManagerProps) {
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                 電話番号
               </label>
               <input
@@ -223,7 +228,9 @@ function ProfileManager({ token }: ProfileManagerProps) {
                 style={{
                   width: '100%',
                   padding: '10px',
-                  border: '1px solid #ddd',
+                  background: '#3a3a3a',
+                  color: '#fff',
+                  border: '1px solid #555',
                   borderRadius: '4px',
                   boxSizing: 'border-box'
                 }}
@@ -231,7 +238,7 @@ function ProfileManager({ token }: ProfileManagerProps) {
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                 所在地
               </label>
               <input
@@ -242,7 +249,9 @@ function ProfileManager({ token }: ProfileManagerProps) {
                 style={{
                   width: '100%',
                   padding: '10px',
-                  border: '1px solid #ddd',
+                  background: '#3a3a3a',
+                  color: '#fff',
+                  border: '1px solid #555',
                   borderRadius: '4px',
                   boxSizing: 'border-box'
                 }}
@@ -253,13 +262,13 @@ function ProfileManager({ token }: ProfileManagerProps) {
 
         {/* Skills */}
         <div style={{
-          background: 'white',
+          background: '#2a2a2a',
           borderRadius: '8px',
           padding: '25px',
           marginBottom: '20px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
         }}>
-          <h3 style={{ margin: '0 0 20px 0', color: '#333' }}>スキル</h3>
+          <h3 style={{ margin: '0 0 20px 0', color: '#fff' }}>スキル</h3>
           
           <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
             <input
@@ -270,7 +279,9 @@ function ProfileManager({ token }: ProfileManagerProps) {
               style={{
                 flex: 1,
                 padding: '8px 12px',
-                border: '1px solid #ddd',
+                background: '#3a3a3a',
+                color: '#fff',
+                border: '1px solid #555',
                 borderRadius: '4px'
               }}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
@@ -280,11 +291,17 @@ function ProfileManager({ token }: ProfileManagerProps) {
               onClick={addSkill}
               style={{
                 padding: '8px 16px',
-                background: '#000',
+                background: '#3b82f6',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
                 cursor: 'pointer'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = '#2563eb';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = '#3b82f6';
               }}
             >
               追加
@@ -326,13 +343,13 @@ function ProfileManager({ token }: ProfileManagerProps) {
 
         {/* Services */}
         <div style={{
-          background: 'white',
+          background: '#2a2a2a',
           borderRadius: '8px',
           padding: '25px',
           marginBottom: '20px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
         }}>
-          <h3 style={{ margin: '0 0 20px 0', color: '#333' }}>提供サービス</h3>
+          <h3 style={{ margin: '0 0 20px 0', color: '#fff' }}>提供サービス</h3>
           
           <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
             <input
@@ -343,7 +360,9 @@ function ProfileManager({ token }: ProfileManagerProps) {
               style={{
                 flex: 1,
                 padding: '8px 12px',
-                border: '1px solid #ddd',
+                background: '#3a3a3a',
+                color: '#fff',
+                border: '1px solid #555',
                 borderRadius: '4px'
               }}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addService())}
@@ -353,11 +372,17 @@ function ProfileManager({ token }: ProfileManagerProps) {
               onClick={addService}
               style={{
                 padding: '8px 16px',
-                background: '#000',
+                background: '#3b82f6',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
                 cursor: 'pointer'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = '#2563eb';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = '#3b82f6';
               }}
             >
               追加
@@ -399,17 +424,17 @@ function ProfileManager({ token }: ProfileManagerProps) {
 
         {/* Social Links */}
         <div style={{
-          background: 'white',
+          background: '#2a2a2a',
           borderRadius: '8px',
           padding: '25px',
           marginBottom: '20px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
         }}>
-          <h3 style={{ margin: '0 0 20px 0', color: '#333' }}>SNS・ウェブサイト</h3>
+          <h3 style={{ margin: '0 0 20px 0', color: '#fff' }}>SNS・ウェブサイト</h3>
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                 ウェブサイト
               </label>
               <input
@@ -428,7 +453,7 @@ function ProfileManager({ token }: ProfileManagerProps) {
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                 YouTube
               </label>
               <input
@@ -452,7 +477,7 @@ function ProfileManager({ token }: ProfileManagerProps) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                 Instagram
               </label>
               <input
@@ -474,7 +499,7 @@ function ProfileManager({ token }: ProfileManagerProps) {
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                 Vimeo
               </label>
               <input
@@ -496,7 +521,7 @@ function ProfileManager({ token }: ProfileManagerProps) {
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                 LinkedIn
               </label>
               <input
@@ -526,12 +551,18 @@ function ProfileManager({ token }: ProfileManagerProps) {
             disabled={loading}
             style={{
               padding: '15px 40px',
-              background: '#000',
+              background: '#3b82f6',
               color: 'white',
               border: 'none',
               borderRadius: '6px',
               fontSize: '16px',
               cursor: loading ? 'not-allowed' : 'pointer'
+            }}
+            onMouseOver={(e) => {
+              if (!loading) e.currentTarget.style.background = '#2563eb';
+            }}
+            onMouseOut={(e) => {
+              if (!loading) e.currentTarget.style.background = '#3b82f6';
             }}
           >
             {loading ? '保存中...' : 'プロフィールを保存'}

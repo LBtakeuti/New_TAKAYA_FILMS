@@ -47,15 +47,11 @@ function VideoManager({ token }: VideoManagerProps) {
 
   const fetchVideos = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/videos/admin', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const data = await response.json();
-      setVideos(data);
+      const response = await api.get('/videos');
+      setVideos(response.data || []);
     } catch (error) {
       console.error('Error fetching videos:', error);
+      setVideos([]);
     }
   };
 
@@ -64,65 +60,55 @@ function VideoManager({ token }: VideoManagerProps) {
     setLoading(true);
 
     try {
-      const url = editingVideo 
-        ? `http://localhost:5001/api/videos/${editingVideo.id}`
-        : 'http://localhost:5001/api/videos';
-      
-      const method = editingVideo ? 'PUT' : 'POST';
+      // YouTube URLの検証
+      if (!formData.title) {
+        alert('タイトルを入力してください');
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.youtube_url && !formData.video_file) {
+        alert('YouTube URLまたは動画ファイルを指定してください');
+        setLoading(false);
+        return;
+      }
+
+      const videoData = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        client: formData.client,
+        status: formData.status,
+        featured: formData.featured,
+        sort_order: formData.sort_order,
+        youtube_url: formData.youtube_url || '',
+        video_url: formData.youtube_url || ''
+      };
 
       let response;
+      if (editingVideo) {
+        response = await api.put(`/videos/${editingVideo.id}`, videoData);
+      } else {
+        response = await api.post('/videos', videoData);
+      }
+
+      console.log('Video saved successfully:', response.data);
       
-      if (formData.video_file) {
-        // ファイルアップロードの場合
-        const uploadFormData = new FormData();
-        uploadFormData.append('title', formData.title);
-        uploadFormData.append('description', formData.description);
-        uploadFormData.append('category', formData.category);
-        uploadFormData.append('client', formData.client);
-        uploadFormData.append('project_date', formData.project_date);
-        uploadFormData.append('status', formData.status);
-        uploadFormData.append('featured', formData.featured.toString());
-        uploadFormData.append('sort_order', formData.sort_order.toString());
-        uploadFormData.append('video_file', formData.video_file);
-
-        response = await fetch(url, {
-          method,
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: uploadFormData
-        });
-      } else {
-        // YouTube URLの場合
-        response = await fetch(url, {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            title: formData.title,
-            description: formData.description,
-            category: formData.category,
-            client: formData.client,
-            project_date: formData.project_date,
-            status: formData.status,
-            featured: formData.featured,
-            sort_order: formData.sort_order,
-            youtube_url: formData.youtube_url
-          })
-        });
+      fetchVideos();
+      resetForm();
+      setIsModalOpen(false);
+      alert('動画を保存しました');
+    } catch (error: any) {
+      console.error('Error saving video:', error);
+      
+      let errorMessage = 'エラーが発生しました';
+      if (error.response?.data?.error) {
+        errorMessage = `エラー: ${error.response.data.error}`;
+      } else if (error.message) {
+        errorMessage = `エラー: ${error.message}`;
       }
-
-      if (response.ok) {
-        fetchVideos();
-        resetForm();
-        setIsModalOpen(false);
-      } else {
-        alert('エラーが発生しました');
-      }
-    } catch (error) {
-      alert('エラーが発生しました');
+      
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -131,15 +117,15 @@ function VideoManager({ token }: VideoManagerProps) {
   const handleEdit = (video: Video) => {
     setEditingVideo(video);
     setFormData({
-      title: video.title,
-      description: video.description,
-      category: video.category,
-      client: video.client,
-      project_date: video.project_date,
-      status: video.status,
-      featured: video.featured,
-      sort_order: video.sort_order,
-      youtube_url: video.video_url.includes('youtube') ? video.video_url : '',
+      title: video.title || '',
+      description: video.description || '',
+      category: video.category || '',
+      client: video.client || '',
+      project_date: video.project_date || '',
+      status: video.status || 'published',
+      featured: video.featured || false,
+      sort_order: video.sort_order || 0,
+      youtube_url: (video.video_url && video.video_url.includes('youtube')) ? video.video_url : '',
       video_file: null
     });
     setIsModalOpen(true);
@@ -149,17 +135,11 @@ function VideoManager({ token }: VideoManagerProps) {
     if (!window.confirm('この動画を削除しますか？')) return;
 
     try {
-      const response = await fetch(`http://localhost:5001/api/videos/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        fetchVideos();
-      }
+      await api.delete(`/videos/${id}`);
+      fetchVideos();
+      alert('動画を削除しました');
     } catch (error) {
+      console.error('Error deleting video:', error);
       alert('削除エラーが発生しました');
     }
   };
@@ -185,22 +165,30 @@ function VideoManager({ token }: VideoManagerProps) {
   };
 
   return (
-    <div style={{ padding: '30px' }}>
+    <div style={{ padding: '0' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <h2 style={{ margin: 0, color: '#333' }}>動画管理</h2>
+        <div>
+          <p style={{ margin: 0, color: '#ccc', fontSize: '14px' }}>動画の追加・編集・削除ができます</p>
+        </div>
         <button
           onClick={() => {
             resetForm();
             setIsModalOpen(true);
           }}
           style={{
-            background: '#000',
+            background: '#3b82f6',
             color: 'white',
             border: 'none',
             padding: '12px 24px',
             borderRadius: '6px',
             cursor: 'pointer'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = '#2563eb';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = '#3b82f6';
           }}
         >
           + 新しい動画を追加
@@ -213,13 +201,25 @@ function VideoManager({ token }: VideoManagerProps) {
         gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
         gap: '20px'
       }}>
-        {videos.map(video => (
-          <div key={video.id} style={{
-            background: 'white',
-            borderRadius: '8px',
-            overflow: 'hidden',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        {videos.length === 0 ? (
+          <div style={{
+            gridColumn: '1 / -1',
+            textAlign: 'center',
+            padding: '60px',
+            color: '#ccc',
+            background: '#2a2a2a',
+            borderRadius: '8px'
           }}>
+            まだ動画が登録されていません。新しい動画を追加してください。
+          </div>
+        ) : (
+          videos.map(video => (
+            <div key={video.id} style={{
+              background: '#2a2a2a',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+            }}>
             {/* Thumbnail */}
             <div style={{
               width: '100%',
@@ -235,10 +235,10 @@ function VideoManager({ token }: VideoManagerProps) {
 
             {/* Content */}
             <div style={{ padding: '20px' }}>
-              <h3 style={{ margin: '0 0 10px 0', fontSize: '1.1rem', color: '#333' }}>
+              <h3 style={{ margin: '0 0 10px 0', fontSize: '1.1rem', color: '#fff' }}>
                 {video.title}
               </h3>
-              <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '15px' }}>
+              <p style={{ color: '#ccc', fontSize: '0.9rem', marginBottom: '15px' }}>
                 {video.category} {video.client && `• ${video.client}`}
               </p>
               
@@ -248,11 +248,18 @@ function VideoManager({ token }: VideoManagerProps) {
                   onClick={() => handleEdit(video)}
                   style={{
                     flex: 1,
-                    background: '#f8f9fa',
-                    border: '1px solid #dee2e6',
+                    background: '#3a3a3a',
+                    color: '#fff',
+                    border: '1px solid #555',
                     padding: '8px',
                     borderRadius: '4px',
                     cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = '#4a4a4a';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = '#3a3a3a';
                   }}
                 >
                   編集
@@ -272,8 +279,9 @@ function VideoManager({ token }: VideoManagerProps) {
                 </button>
               </div>
             </div>
-          </div>
-        ))}
+            </div>
+          ))
+        )}
       </div>
 
       {/* Modal */}
@@ -291,7 +299,7 @@ function VideoManager({ token }: VideoManagerProps) {
           zIndex: 1000
         }}>
           <div style={{
-            background: 'white',
+            background: '#2a2a2a',
             borderRadius: '8px',
             padding: '30px',
             width: '90%',
@@ -299,13 +307,13 @@ function VideoManager({ token }: VideoManagerProps) {
             maxHeight: '80vh',
             overflow: 'auto'
           }}>
-            <h3 style={{ margin: '0 0 20px 0' }}>
+            <h3 style={{ margin: '0 0 20px 0', color: '#fff' }}>
               {editingVideo ? '動画を編集' : '新しい動画を追加'}
             </h3>
 
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                   タイトル *
                 </label>
                 <input
@@ -315,7 +323,9 @@ function VideoManager({ token }: VideoManagerProps) {
                   style={{
                     width: '100%',
                     padding: '10px',
-                    border: '1px solid #ddd',
+                    background: '#3a3a3a',
+                    color: '#fff',
+                    border: '1px solid #555',
                     borderRadius: '4px',
                     boxSizing: 'border-box'
                   }}
@@ -324,7 +334,7 @@ function VideoManager({ token }: VideoManagerProps) {
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                   YouTube URL
                 </label>
                 <input
@@ -335,7 +345,9 @@ function VideoManager({ token }: VideoManagerProps) {
                   style={{
                     width: '100%',
                     padding: '10px',
-                    border: '1px solid #ddd',
+                    background: '#3a3a3a',
+                    color: '#fff',
+                    border: '1px solid #555',
                     borderRadius: '4px',
                     boxSizing: 'border-box'
                   }}
@@ -343,7 +355,7 @@ function VideoManager({ token }: VideoManagerProps) {
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                   または動画ファイルをアップロード
                 </label>
                 <input
@@ -353,7 +365,9 @@ function VideoManager({ token }: VideoManagerProps) {
                   style={{
                     width: '100%',
                     padding: '10px',
-                    border: '1px solid #ddd',
+                    background: '#3a3a3a',
+                    color: '#fff',
+                    border: '1px solid #555',
                     borderRadius: '4px',
                     boxSizing: 'border-box'
                   }}
@@ -366,7 +380,7 @@ function VideoManager({ token }: VideoManagerProps) {
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                   説明
                 </label>
                 <textarea
@@ -376,7 +390,9 @@ function VideoManager({ token }: VideoManagerProps) {
                   style={{
                     width: '100%',
                     padding: '10px',
-                    border: '1px solid #ddd',
+                    background: '#3a3a3a',
+                    color: '#fff',
+                    border: '1px solid #555',
                     borderRadius: '4px',
                     boxSizing: 'border-box'
                   }}
@@ -385,7 +401,7 @@ function VideoManager({ token }: VideoManagerProps) {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                     カテゴリ
                   </label>
                   <select
@@ -394,7 +410,9 @@ function VideoManager({ token }: VideoManagerProps) {
                     style={{
                       width: '100%',
                       padding: '10px',
-                      border: '1px solid #ddd',
+                      background: '#3a3a3a',
+                      color: '#fff',
+                      border: '1px solid #555',
                       borderRadius: '4px'
                     }}
                   >
@@ -408,7 +426,7 @@ function VideoManager({ token }: VideoManagerProps) {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                     ステータス
                   </label>
                   <select
@@ -417,7 +435,9 @@ function VideoManager({ token }: VideoManagerProps) {
                     style={{
                       width: '100%',
                       padding: '10px',
-                      border: '1px solid #ddd',
+                      background: '#3a3a3a',
+                      color: '#fff',
+                      border: '1px solid #555',
                       borderRadius: '4px'
                     }}
                   >
@@ -428,7 +448,7 @@ function VideoManager({ token }: VideoManagerProps) {
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#ccc' }}>
                   クライアント
                 </label>
                 <input
@@ -438,7 +458,9 @@ function VideoManager({ token }: VideoManagerProps) {
                   style={{
                     width: '100%',
                     padding: '10px',
-                    border: '1px solid #ddd',
+                    background: '#3a3a3a',
+                    color: '#fff',
+                    border: '1px solid #555',
                     borderRadius: '4px',
                     boxSizing: 'border-box'
                   }}
@@ -462,10 +484,17 @@ function VideoManager({ token }: VideoManagerProps) {
                   onClick={() => setIsModalOpen(false)}
                   style={{
                     padding: '10px 20px',
-                    border: '1px solid #ddd',
-                    background: 'white',
+                    border: '1px solid #555',
+                    background: '#3a3a3a',
+                    color: '#fff',
                     borderRadius: '4px',
                     cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = '#4a4a4a';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = '#3a3a3a';
                   }}
                 >
                   キャンセル
@@ -475,11 +504,17 @@ function VideoManager({ token }: VideoManagerProps) {
                   disabled={loading}
                   style={{
                     padding: '10px 20px',
-                    background: '#000',
+                    background: '#3b82f6',
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',
                     cursor: loading ? 'not-allowed' : 'pointer'
+                  }}
+                  onMouseOver={(e) => {
+                    if (!loading) e.currentTarget.style.background = '#2563eb';
+                  }}
+                  onMouseOut={(e) => {
+                    if (!loading) e.currentTarget.style.background = '#3b82f6';
                   }}
                 >
                   {loading ? '保存中...' : '保存'}

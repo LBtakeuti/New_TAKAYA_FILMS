@@ -1,28 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Video, Profile } from '../../types';
+import VideoManager from '../../components/VideoManager';
+import ProfileManager from '../../components/ProfileManager';
 
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<any>(null);
-  const [stats, setStats] = useState({
-    videos: 0,
-    profileUpdated: false
-  });
+  const [currentView, setCurrentView] = useState('overview');
+  const [token, setToken] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     try {
-      const token = localStorage.getItem('token');
+      const storedToken = localStorage.getItem('token');
       const userData = localStorage.getItem('user');
 
-      if (!token || !userData) {
+      if (!storedToken || !userData) {
         navigate('/admin/login');
         return;
       }
 
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
-      // Load dashboard stats here
+      setToken(storedToken);
     } catch (error) {
       console.error('Error loading user data:', error);
       localStorage.removeItem('token');
@@ -78,7 +77,7 @@ const Dashboard: React.FC = () => {
               color: '#fff',
               margin: 0
             }}>
-              TAKAYA FILMS Admin Dashboard
+              TAKAYA FILMS Admin
             </h1>
           </div>
           <div style={{
@@ -112,174 +111,202 @@ const Dashboard: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '40px 20px'
-      }}>
-        {/* Welcome Message */}
-        <div style={{
+      <div style={{ display: 'flex', minHeight: 'calc(100vh - 64px)' }}>
+        {/* Sidebar */}
+        <nav style={{
+          width: '250px',
           background: '#2a2a2a',
-          padding: '30px',
-          borderRadius: '8px',
-          marginBottom: '40px',
-          textAlign: 'center'
+          padding: '20px 0',
+          borderRight: '1px solid #3a3a3a'
         }}>
-          <h2 style={{
-            fontSize: '1.5rem',
-            color: '#fff',
-            marginBottom: '10px'
-          }}>
-            ログイン成功！
-          </h2>
-          <p style={{
-            color: '#ccc',
-            fontSize: '1rem',
-            margin: 0
-          }}>
-            管理画面にアクセスできています。今後、ここでビデオの管理やプロフィールの更新が可能になります。
-          </p>
-        </div>
-
-        {/* Stats Cards */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '20px',
-          marginBottom: '40px'
-        }}>
-          <div style={{
-            background: '#2a2a2a',
-            padding: '20px',
-            borderRadius: '8px',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                background: '#3b82f6',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginRight: '16px'
-              }}>
-                <span style={{ color: '#fff', fontSize: '14px' }}>📹</span>
-              </div>
-              <div>
-                <div style={{
+          <div style={{ padding: '0 20px' }}>
+            {[
+              { id: 'overview', label: 'Overview', icon: '📊' },
+              { id: 'videos', label: 'Video Management', icon: '📹' },
+              { id: 'profile', label: 'Profile Management', icon: '👤' },
+              { id: 'site', label: 'View Site', icon: '🌐' }
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  if (item.id === 'site') {
+                    window.open('/', '_blank');
+                  } else {
+                    setCurrentView(item.id);
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  margin: '4px 0',
+                  background: currentView === item.id ? '#3b82f6' : 'transparent',
+                  color: currentView === item.id ? '#fff' : '#ccc',
+                  border: 'none',
+                  borderRadius: '6px',
                   fontSize: '14px',
-                  color: '#999',
-                  marginBottom: '4px'
-                }}>
-                  Total Videos
-                </div>
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+                onMouseOver={(e) => {
+                  if (currentView !== item.id) {
+                    e.currentTarget.style.background = '#3a3a3a';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (currentView !== item.id) {
+                    e.currentTarget.style.background = 'transparent';
+                  }
+                }}
+              >
+                <span>{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* Main Content */}
+        <main style={{
+          flex: 1,
+          padding: '30px',
+          overflow: 'auto'
+        }}>
+          {currentView === 'overview' && (
+            <div>
+              <h2 style={{
+                fontSize: '1.5rem',
+                color: '#fff',
+                marginBottom: '20px'
+              }}>
+                Dashboard Overview
+              </h2>
+              
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '20px',
+                marginBottom: '30px'
+              }}>
                 <div style={{
-                  fontSize: '18px',
-                  fontWeight: '500',
-                  color: '#fff'
+                  background: '#2a2a2a',
+                  padding: '20px',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
                 }}>
-                  {stats.videos}
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+                    <span style={{ fontSize: '24px', marginRight: '10px' }}>📹</span>
+                    <h3 style={{ color: '#fff', margin: 0 }}>Video Management</h3>
+                  </div>
+                  <p style={{ color: '#ccc', marginBottom: '15px', fontSize: '14px' }}>
+                    Manage your video portfolio, upload new videos, and organize your content.
+                  </p>
+                  <button
+                    onClick={() => setCurrentView('videos')}
+                    style={{
+                      background: '#3b82f6',
+                      color: '#fff',
+                      padding: '8px 16px',
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontSize: '14px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Manage Videos
+                  </button>
+                </div>
+
+                <div style={{
+                  background: '#2a2a2a',
+                  padding: '20px',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+                    <span style={{ fontSize: '24px', marginRight: '10px' }}>👤</span>
+                    <h3 style={{ color: '#fff', margin: 0 }}>Profile Management</h3>
+                  </div>
+                  <p style={{ color: '#ccc', marginBottom: '15px', fontSize: '14px' }}>
+                    Update your personal information, bio, and contact details.
+                  </p>
+                  <button
+                    onClick={() => setCurrentView('profile')}
+                    style={{
+                      background: '#8b5cf6',
+                      color: '#fff',
+                      padding: '8px 16px',
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontSize: '14px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Edit Profile
+                  </button>
+                </div>
+
+                <div style={{
+                  background: '#2a2a2a',
+                  padding: '20px',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+                    <span style={{ fontSize: '24px', marginRight: '10px' }}>🌐</span>
+                    <h3 style={{ color: '#fff', margin: 0 }}>Live Site</h3>
+                  </div>
+                  <p style={{ color: '#ccc', marginBottom: '15px', fontSize: '14px' }}>
+                    View your live website and see how changes appear to visitors.
+                  </p>
+                  <button
+                    onClick={() => window.open('/', '_blank')}
+                    style={{
+                      background: '#10b981',
+                      color: '#fff',
+                      padding: '8px 16px',
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontSize: '14px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    View Site
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
-          <div style={{
-            background: '#2a2a2a',
-            padding: '20px',
-            borderRadius: '8px',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                background: '#10b981',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginRight: '16px'
+          {currentView === 'videos' && (
+            <div>
+              <h2 style={{
+                fontSize: '1.5rem',
+                color: '#fff',
+                marginBottom: '20px'
               }}>
-                <span style={{ color: '#fff', fontSize: '14px' }}>✅</span>
-              </div>
-              <div>
-                <div style={{
-                  fontSize: '14px',
-                  color: '#999',
-                  marginBottom: '4px'
-                }}>
-                  Authentication Status
-                </div>
-                <div style={{
-                  fontSize: '18px',
-                  fontWeight: '500',
-                  color: '#10b981'
-                }}>
-                  Authenticated
-                </div>
-              </div>
+                Video Management
+              </h2>
+              <VideoManager token={token} />
             </div>
-          </div>
-        </div>
+          )}
 
-        {/* Quick Actions */}
-        <div style={{
-          background: '#2a2a2a',
-          padding: '30px',
-          borderRadius: '8px'
-        }}>
-          <h3 style={{
-            fontSize: '1.25rem',
-            color: '#fff',
-            marginBottom: '20px'
-          }}>
-            クイックアクション
-          </h3>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '15px'
-          }}>
-            <button style={{
-              background: '#3b82f6',
-              color: '#fff',
-              padding: '12px 20px',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '14px',
-              cursor: 'pointer'
-            }}>
-              ビデオ管理
-            </button>
-            <button style={{
-              background: '#8b5cf6',
-              color: '#fff',
-              padding: '12px 20px',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '14px',
-              cursor: 'pointer'
-            }}>
-              プロフィール編集
-            </button>
-            <button style={{
-              background: '#10b981',
-              color: '#fff',
-              padding: '12px 20px',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '14px',
-              cursor: 'pointer'
-            }}>
-              サイト確認
-            </button>
-          </div>
-        </div>
-      </main>
+          {currentView === 'profile' && (
+            <div>
+              <h2 style={{
+                fontSize: '1.5rem',
+                color: '#fff',
+                marginBottom: '20px'
+              }}>
+                Profile Management
+              </h2>
+              <ProfileManager token={token} />
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 };

@@ -21,26 +21,49 @@ exports.getVideos = async (req, res) => {
 // 動画作成
 exports.createVideo = async (req, res) => {
   try {
-    const { title, description, youtube_url, category, featured } = req.body;
+    const { title, description, youtube_url, video_url, category, client, status, featured, sort_order } = req.body;
+    
+    console.log('Creating video with data:', req.body);
+    
+    if (!title) {
+      return res.status(400).json({ error: 'タイトルは必須です' });
+    }
+    
+    const insertData = {
+      title,
+      description: description || '',
+      video_url: youtube_url || video_url || '',
+      thumbnail_url: '',
+      category: category || '',
+      client: client || '',
+      status: status || 'published',
+      featured: featured || false,
+      sort_order: sort_order || 0
+    };
+    
+    console.log('Inserting data:', insertData);
     
     const { data, error } = await supabase
       .from('videos')
-      .insert([{
-        title,
-        description,
-        youtube_url,
-        category,
-        featured: featured || false
-      }])
+      .insert([insertData])
       .select();
     
     if (error) {
-      return res.status(500).json({ error: error.message });
+      console.error('Supabase error:', error);
+      return res.status(500).json({ 
+        error: error.message,
+        details: error.details || 'データベースエラーが発生しました'
+      });
     }
     
-    res.json({ id: data[0].id, message: 'Video created successfully' });
+    if (!data || data.length === 0) {
+      return res.status(500).json({ error: 'データの保存に失敗しました' });
+    }
+    
+    res.json({ id: data[0].id, message: 'Video created successfully', data: data[0] });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Server error:', err);
+    res.status(500).json({ error: err.message || 'サーバーエラーが発生しました' });
   }
 };
 
@@ -48,17 +71,22 @@ exports.createVideo = async (req, res) => {
 exports.updateVideo = async (req, res) => {
   try {
     const videoId = req.url.split('/')[3]; // /api/videos/:id から id を抽出
-    const { title, description, youtube_url, category, featured } = req.body;
+    const { title, description, youtube_url, video_url, category, client, status, featured, sort_order } = req.body;
     
+    const updateData = {
+      title,
+      description,
+      video_url: youtube_url || video_url || '',
+      category: category || '',
+      client: client || '',
+      status: status || 'published',
+      featured: featured || false,
+      sort_order: sort_order || 0
+    };
+
     const { data, error } = await supabase
       .from('videos')
-      .update({
-        title,
-        description,
-        youtube_url,
-        category,
-        featured: featured || false
-      })
+      .update(updateData)
       .eq('id', videoId)
       .select();
     
@@ -102,19 +130,36 @@ exports.deleteVideo = async (req, res) => {
 };
 
 // ルートハンドラー
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   const { url, method } = req;
+  
+  // リクエストボディをパース
+  if (method === 'POST' || method === 'PUT') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    
+    return new Promise((resolve) => {
+      req.on('end', () => {
+        try {
+          req.body = JSON.parse(body);
+        } catch (e) {
+          console.error('JSON parse error:', e);
+          req.body = {};
+        }
+        
+        if (url === '/api/videos' && method === 'POST') {
+          resolve(exports.createVideo(req, res));
+        } else if (url.startsWith('/api/videos/') && method === 'PUT') {
+          resolve(exports.updateVideo(req, res));
+        }
+      });
+    });
+  }
   
   if (url === '/api/videos' && method === 'GET') {
     return exports.getVideos(req, res);
-  }
-  
-  if (url === '/api/videos' && method === 'POST') {
-    return exports.createVideo(req, res);
-  }
-  
-  if (url.startsWith('/api/videos/') && method === 'PUT') {
-    return exports.updateVideo(req, res);
   }
   
   if (url.startsWith('/api/videos/') && method === 'DELETE') {
