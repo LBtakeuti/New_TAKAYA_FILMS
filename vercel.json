@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/main.js"
+      "destination": "/api/data.js"
     },
     {
       "source": "/(.*)",
@@ -13,8 +13,8 @@
     }
   ],
   "functions": {
-    "api/main.js": {
-      "maxDuration": 10
+    "api/data.js": {
+      "runtime": "edge"
     }
   }
 }

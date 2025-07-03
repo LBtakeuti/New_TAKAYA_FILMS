@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from './utils/api';
+import api from './utils/api-direct';
 import './App.css';
 import ContactForm from './components/ContactForm';
 import { Video, Profile } from './types';
@@ -19,11 +19,11 @@ function App() {
   const fetchData = async () => {
     try {
       const [videosRes, profileRes] = await Promise.all([
-        api.get('/kv/videos').catch(err => {
+        api.get('/videos').catch(err => {
           console.error('Videos API error:', err);
           return { data: [] };
         }),
-        api.get('/kv/get').then(res => ({ data: res.data.profile })).catch(err => {
+        api.get('/profile').catch(err => {
           console.error('Profile API error:', err);
           return { 
             data: { 
