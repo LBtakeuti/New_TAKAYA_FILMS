@@ -3,8 +3,32 @@ const profileHandlers = require('./profile');
 const contactHandlers = require('./contact');
 const videoHandlers = require('./videos');
 
+// リクエストボディをパースする関数
+const parseBody = (req) => {
+  return new Promise((resolve, reject) => {
+    if (req.body) {
+      resolve(req.body);
+      return;
+    }
+    
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    req.on('end', () => {
+      try {
+        req.body = JSON.parse(body || '{}');
+        resolve(req.body);
+      } catch (error) {
+        reject(error);
+      }
+    });
+    req.on('error', reject);
+  });
+};
+
 // API ルートハンドラー
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   const { url, method } = req;
   
   // CORS設定
@@ -18,6 +42,15 @@ module.exports = (req, res) => {
   }
 
   // URL ルーティング
+  // POSTやPUTリクエストの場合はボディをパース
+  if (method === 'POST' || method === 'PUT') {
+    try {
+      await parseBody(req);
+    } catch (error) {
+      return res.status(400).json({ error: 'Invalid request body' });
+    }
+  }
+
   if (url.startsWith('/api/auth/login') && method === 'POST') {
     return authHandlers.login(req, res);
   }

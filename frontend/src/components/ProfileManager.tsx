@@ -69,16 +69,21 @@ function ProfileManager({ token }: ProfileManagerProps) {
     setLoading(true);
 
     try {
-      await api.put('/profile', formData, {
+      const response = await api.put('/profile', formData, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
-      fetchProfile();
-      alert('プロフィールを更新しました');
-    } catch (error) {
+      
+      if (response.data && response.data.message) {
+        fetchProfile();
+        alert('プロフィールを更新しました');
+      }
+    } catch (error: any) {
       console.error('Error updating profile:', error);
-      alert('エラーが発生しました');
+      const errorMessage = error.response?.data?.error || error.message || 'エラーが発生しました';
+      alert(`エラー: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
