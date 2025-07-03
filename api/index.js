@@ -2,6 +2,7 @@ const authHandlers = require('./auth');
 const profileHandlers = require('./profile');
 const contactHandlers = require('./contact');
 const videoHandlers = require('./videos');
+const { verifyToken, optionalAuth } = require('./middleware/auth');
 
 // リクエストボディをパースする関数
 const parseBody = (req) => {
@@ -64,7 +65,10 @@ module.exports = async (req, res) => {
   }
   
   if (url.startsWith('/api/profile') && method === 'PUT') {
-    return profileHandlers.updateProfile(req, res);
+    // 認証チェックを実行
+    return verifyToken(req, res, () => {
+      return profileHandlers.updateProfile(req, res);
+    });
   }
   
   if (url.startsWith('/api/contact/send') && method === 'POST') {

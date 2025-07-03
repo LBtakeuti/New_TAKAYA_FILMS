@@ -14,6 +14,26 @@ exports.login = async (req, res) => {
             return res.status(400).json({ error: 'Username and password are required' });
         }
 
+        // 開発環境用のデフォルト認証
+        if (process.env.NODE_ENV !== 'production' && username === 'admin' && password === 'admin123') {
+            const token = jwt.sign(
+                { id: 1, username: 'admin', role: 'admin' },
+                JWT_SECRET,
+                { expiresIn: '24h' }
+            );
+
+            return res.json({
+                message: 'Login successful',
+                token,
+                user: {
+                    id: 1,
+                    username: 'admin',
+                    email: 'admin@takayafilms.com',
+                    role: 'admin'
+                }
+            });
+        }
+
         const { data, error } = await supabase
             .from('users')
             .select('*')

@@ -27,6 +27,11 @@ exports.getProfile = async (req, res) => {
 // プロフィール更新
 exports.updateProfile = async (req, res) => {
   try {
+    // 開発環境では認証をスキップできるようにする
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+    if (!isDevelopment && !req.user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
     const {
       name,
       title,
