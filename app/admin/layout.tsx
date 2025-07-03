@@ -1,4 +1,5 @@
 import '../admin.css';
+import '../admin-components.css';
 
 export default function AdminLayout({
   children,
