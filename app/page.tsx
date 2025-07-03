@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import ContactForm from '@/components/ContactForm';
+import VideoPlayer from '@/components/VideoPlayer';
 import { Video, Profile } from '@/types';
 
 export default function HomePage() {
@@ -10,8 +11,8 @@ export default function HomePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(true);
-  const [playingVideo, setPlayingVideo] = useState<Video | null>(null);
-  const [hoverTimeouts, setHoverTimeouts] = useState<Map<number, NodeJS.Timeout>>(new Map());
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -38,36 +39,12 @@ export default function HomePage() {
     ? videos 
     : videos.filter(v => v.category === selectedCategory);
 
-  const handleVideoHover = (video: Video) => {
-    const timeout = setTimeout(() => {
-      setPlayingVideo(video);
-    }, 200);
-    
-    setHoverTimeouts(prev => new Map(prev).set(video.id, timeout));
-  };
-
-  const handleVideoLeave = (videoId: number) => {
-    const timeout = hoverTimeouts.get(videoId);
-    if (timeout) {
-      clearTimeout(timeout);
-      setHoverTimeouts(prev => {
-        const newMap = new Map(prev);
-        newMap.delete(videoId);
-        return newMap;
-      });
-    }
-    if (playingVideo?.id === videoId) {
-      setPlayingVideo(null);
-    }
-  };
-
   // YouTube URLからサムネイルを取得
   const getYouTubeThumbnail = (url: string): string => {
     const videoId = extractYouTubeId(url);
     if (videoId) {
       return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
     }
-    // YouTube以外の場合はデフォルト画像
     return '/placeholder-video.jpg';
   };
 
@@ -77,11 +54,16 @@ export default function HomePage() {
     return match ? match[1] : null;
   };
 
-  // ビデオを新しいウィンドウで開く
-  const openVideo = (video: Video) => {
-    if (video.video_url) {
-      window.open(video.video_url, '_blank', 'noopener,noreferrer');
-    }
+  // ビデオプレイヤーを開く
+  const openVideoPlayer = (video: Video) => {
+    setSelectedVideo(video);
+    setIsPlayerOpen(true);
+  };
+
+  // ビデオプレイヤーを閉じる
+  const closeVideoPlayer = () => {
+    setIsPlayerOpen(false);
+    setTimeout(() => setSelectedVideo(null), 300);
   };
 
   return (
@@ -133,8 +115,7 @@ export default function HomePage() {
               <div 
                 key={video.id} 
                 className="video-card"
-                onMouseEnter={() => handleVideoHover(video)}
-                onMouseLeave={() => handleVideoLeave(video.id)}
+                onClick={() => openVideoPlayer(video)}
               >
                 <div className="video-thumbnail">
                   {video.video_url && (
@@ -142,15 +123,28 @@ export default function HomePage() {
                       src={getYouTubeThumbnail(video.video_url)} 
                       alt={video.title}
                       loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.src = `https://img.youtube.com/vi/${extractYouTubeId(video.video_url)}/hqdefault.jpg`;
+                      }}
                     />
                   )}
-                  <div className="play-overlay" onClick={() => openVideo(video)}>
-                    <span className="play-icon">▶</span>
+                  <div className="play-overlay">
+                    <div className="play-button">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </div>
                   </div>
+                  {video.category && (
+                    <span className="video-duration">{video.category}</span>
+                  )}
                 </div>
                 <div className="video-info">
                   <h3>{video.title}</h3>
-                  {video.category && <span className="video-category">{video.category}</span>}
+                  {video.client && <p className="video-client">{video.client}</p>}
+                  {video.description && (
+                    <p className="video-description">{video.description}</p>
+                  )}
                 </div>
               </div>
             ))
@@ -228,6 +222,16 @@ export default function HomePage() {
       <footer className="App-footer">
         <p>&copy; 2024 TAKAYA FILMS. All rights reserved.</p>
       </footer>
+
+      {/* Video Player Modal */}
+      {selectedVideo && (
+        <VideoPlayer
+          videoUrl={selectedVideo.video_url}
+          isOpen={isPlayerOpen}
+          onClose={closeVideoPlayer}
+          title={selectedVideo.title}
+        />
+      )}
     </div>
   );
 }
