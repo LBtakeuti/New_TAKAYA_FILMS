@@ -64,7 +64,8 @@ exports.updateProfile = async (req, res) => {
           social_links,
           skills,
           services,
-          instagram_url
+          instagram_url,
+          updated_at: new Date().toISOString()
         })
         .eq('id', currentProfile.id)
         .select();
@@ -89,7 +90,9 @@ exports.updateProfile = async (req, res) => {
           social_links,
           skills,
           services,
-          instagram_url
+          instagram_url,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         }])
         .select();
 

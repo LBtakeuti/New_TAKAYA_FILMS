@@ -69,10 +69,15 @@ function ProfileManager({ token }: ProfileManagerProps) {
     setLoading(true);
 
     try {
-      await api.put('/profile', formData);
+      await api.put('/profile', formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       fetchProfile();
       alert('プロフィールを更新しました');
     } catch (error) {
+      console.error('Error updating profile:', error);
       alert('エラーが発生しました');
     } finally {
       setLoading(false);
