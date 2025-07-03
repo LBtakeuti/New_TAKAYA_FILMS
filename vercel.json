@@ -4,20 +4,8 @@
   "installCommand": "npm install && cd frontend && npm install",
   "rewrites": [
     {
-      "source": "/api/simple-profile",
-      "destination": "/api/simple-profile.js"
-    },
-    {
-      "source": "/api/simple-videos",
-      "destination": "/api/simple-videos.js"
-    },
-    {
-      "source": "/api/test-profile",
-      "destination": "/api/test-profile.js"
-    },
-    {
       "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "destination": "/api/universal-handler.js"
     },
     {
       "source": "/(.*)",

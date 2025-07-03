@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { Profile } from '../types';
+import Toast from './Toast';
+import { useToast } from '../hooks/useToast';
 
 interface ProfileManagerProps {
   token: string;
@@ -11,6 +13,7 @@ function ProfileManager({ token }: ProfileManagerProps) {
   const [loading, setLoading] = useState(false);
   const [skillInput, setSkillInput] = useState('');
   const [serviceInput, setServiceInput] = useState('');
+  const { toast, showToast, hideToast } = useToast();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -77,13 +80,13 @@ function ProfileManager({ token }: ProfileManagerProps) {
       console.log('Response:', response.data);
       
       if (response.data && response.data.message) {
-        fetchProfile();
-        alert('プロフィールを更新しました');
+        await fetchProfile();
+        showToast('プロフィールを更新しました！', 'success');
       }
     } catch (error: any) {
       console.error('Error updating profile:', error);
       const errorMessage = error.response?.data?.error || error.message || 'エラーが発生しました';
-      alert(`エラー: ${errorMessage}`);
+      showToast(errorMessage, 'error');
     } finally {
       setLoading(false);
     }
@@ -579,6 +582,14 @@ function ProfileManager({ token }: ProfileManagerProps) {
           </button>
         </div>
       </form>
+      
+      {toast.isVisible && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+        />
+      )}
     </div>
   );
 }
