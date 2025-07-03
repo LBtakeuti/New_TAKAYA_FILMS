@@ -31,36 +31,15 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#f5f5f5'
-    }}>
-      <div style={{
-        background: '#fff',
-        padding: '40px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-        width: '400px'
-      }}>
-        <h1 style={{
-          textAlign: 'center',
-          marginBottom: '30px',
-          fontSize: '24px'
-        }}>
+    <div className="admin-login-container">
+      <div className="admin-login-box">
+        <h1 className="admin-login-title">
           TAKAYA FILMS Admin
         </h1>
         
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              color: '#333'
-            }}>
+          <div className="admin-form-group">
+            <label className="admin-form-label">
               Username
             </label>
             <input
@@ -68,23 +47,12 @@ const LoginPage: React.FC = () => {
               value={credentials.username}
               onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
               required
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '16px'
-              }}
+              className="admin-form-input"
             />
           </div>
           
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              color: '#333'
-            }}>
+          <div className="admin-form-group">
+            <label className="admin-form-label">
               Password
             </label>
             <input
@@ -92,25 +60,13 @@ const LoginPage: React.FC = () => {
               value={credentials.password}
               onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
               required
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '16px'
+              className="admin-form-input"
               }}
             />
           </div>
           
           {error && (
-            <div style={{
-              color: '#d32f2f',
-              fontSize: '14px',
-              marginBottom: '20px',
-              padding: '8px',
-              background: '#ffebee',
-              borderRadius: '4px'
-            }}>
+            <div className="admin-error-message">
               {error}
             </div>
           )}
@@ -118,17 +74,7 @@ const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            style={{
-              width: '100%',
-              padding: '12px',
-              background: loading ? '#666' : '#000',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '16px',
-              cursor: loading ? 'default' : 'pointer',
-              transition: 'background 0.3s'
-            }}
+            className="admin-submit-btn"
           >
             {loading ? 'ログイン中...' : 'ログイン'}
           </button>

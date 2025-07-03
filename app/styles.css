@@ -329,6 +329,30 @@
   }
 }
 
+/* Navigation Links Style */
+.nav-links {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links a {
+  color: #333;
+  text-decoration: none;
+  font-weight: 300;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  transition: opacity 0.3s ease;
+  opacity: 0.8;
+}
+
+.nav-links a:hover {
+  opacity: 1;
+  color: #000;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .hero-title {

@@ -40,74 +40,38 @@ const Dashboard: React.FC = () => {
 
   if (!user) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: '#1a1a1a',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{ color: '#fff', fontSize: '18px' }}>Loading...</div>
+      <div className="admin-loading">
+        <div className="admin-loading-text">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#f5f5f5'
-    }}>
+    <>
       {/* Header */}
-      <div style={{
-        background: '#000',
-        color: '#fff',
-        padding: '20px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <h1 style={{ margin: 0, fontSize: '24px' }}>
-          TAKAYA FILMS - Admin Dashboard
-        </h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <span>Welcome, {user.username}</span>
-          <button
-            onClick={handleLogout}
-            style={{
-              background: '#d32f2f',
-              color: '#fff',
-              border: 'none',
-              padding: '8px 16px',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Logout
-          </button>
+      <div className="admin-header">
+        <div className="admin-header-content">
+          <h1 className="admin-logo">TAKAYA FILMS - Admin</h1>
+          <div className="admin-user-info">
+            <span className="admin-user-name">Welcome, {user.username}</span>
+            <button
+              onClick={handleLogout}
+              className="admin-logout-btn"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <div style={{
-        background: '#fff',
-        borderBottom: '1px solid #ddd',
-        padding: '0 20px'
-      }}>
-        <nav style={{ display: 'flex', gap: '30px' }}>
+      <div className="admin-nav">
+        <nav className="admin-nav-content">
           {['overview', 'videos', 'profile'].map(view => (
             <button
               key={view}
               onClick={() => setCurrentView(view)}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: '15px 0',
-                cursor: 'pointer',
-                fontSize: '16px',
-                borderBottom: currentView === view ? '2px solid #000' : 'none',
-                color: currentView === view ? '#000' : '#666',
-                textTransform: 'capitalize'
-              }}
+              className={`admin-nav-btn ${currentView === view ? 'active' : ''}`}
             >
               {view}
             </button>
@@ -116,42 +80,22 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div style={{ padding: '20px' }}>
+      <div className="admin-content">
         {currentView === 'overview' && (
-          <div style={{
-            background: '#fff',
-            padding: '30px',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-          }}>
-            <h2 style={{ marginBottom: '20px' }}>Dashboard Overview</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-              <div style={{
-                padding: '20px',
-                background: '#f5f5f5',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}>
+          <div className="admin-overview">
+            <h2>Dashboard Overview</h2>
+            <div className="admin-stats-grid">
+              <div className="admin-stat-card">
                 <h3>Total Videos</h3>
-                <p style={{ fontSize: '24px', fontWeight: 'bold' }}>-</p>
+                <div className="admin-stat-value">-</div>
               </div>
-              <div style={{
-                padding: '20px',
-                background: '#f5f5f5',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}>
+              <div className="admin-stat-card">
                 <h3>Profile Status</h3>
-                <p style={{ color: '#4caf50' }}>Active</p>
+                <div className="admin-stat-status active">Active</div>
               </div>
-              <div style={{
-                padding: '20px',
-                background: '#f5f5f5',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}>
+              <div className="admin-stat-card">
                 <h3>Last Updated</h3>
-                <p>{new Date().toLocaleDateString()}</p>
+                <div className="admin-stat-value">{new Date().toLocaleDateString('ja-JP')}</div>
               </div>
             </div>
           </div>
@@ -165,7 +109,7 @@ const Dashboard: React.FC = () => {
           <ProfileManagerV2 token={token} />
         )}
       </div>
-    </div>
+    </>
   );
 };
 
