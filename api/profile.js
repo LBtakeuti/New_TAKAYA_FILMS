@@ -27,11 +27,9 @@ exports.getProfile = async (req, res) => {
 // プロフィール更新
 exports.updateProfile = async (req, res) => {
   try {
-    // 開発環境では認証をスキップできるようにする
-    const isDevelopment = process.env.NODE_ENV !== 'production';
-    if (!isDevelopment && !req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
+    console.log('Profile update request received:', req.body);
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('User:', req.user);
     const {
       name,
       title,
@@ -56,9 +54,7 @@ exports.updateProfile = async (req, res) => {
 
     if (currentProfile) {
       // 既存プロフィールの更新
-      const { data, error } = await supabase
-        .from('profile')
-        .update({
+      const updateData = {
           name,
           title,
           bio,
@@ -71,15 +67,23 @@ exports.updateProfile = async (req, res) => {
           services,
           instagram_url,
           updated_at: new Date().toISOString()
-        })
+        };
+
+      console.log('Updating profile with data:', updateData);
+
+      const { data, error } = await supabase
+        .from('profile')
+        .update(updateData)
         .eq('id', currentProfile.id)
         .select();
 
       if (error) {
+        console.error('Supabase update error:', error);
         return res.status(500).json({ error: error.message });
       }
       
-      res.json({ message: 'Profile updated successfully' });
+      console.log('Profile updated successfully:', data);
+      res.json({ message: 'Profile updated successfully', data: data[0] });
     } else {
       // 新規プロフィール作成
       const { data, error } = await supabase
@@ -102,15 +106,19 @@ exports.updateProfile = async (req, res) => {
         .select();
 
       if (error) {
+        console.error('Supabase insert error:', error);
         return res.status(500).json({ error: error.message });
       }
       
+      console.log('Profile created successfully:', data);
       res.status(201).json({
         id: data[0].id,
-        message: 'Profile created successfully'
+        message: 'Profile created successfully',
+        data: data[0]
       });
     }
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Profile update error:', err);
+    res.status(500).json({ error: err.message || 'Internal server error' });
   }
 };
