@@ -3,15 +3,17 @@ export interface Video {
   title: string;
   description: string;
   video_url: string;
-  thumbnail_url: string;
+  thumbnail_url?: string;
   category: string;
   client: string;
-  project_date: string;
-  status: 'published' | 'draft';
-  featured: boolean;
+  project_date?: string;
+  status?: 'published' | 'draft'; // 互換性のため
+  is_published?: boolean;
+  featured?: boolean; // 互換性のため
+  is_featured?: boolean;
   sort_order: number;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
 }
 
 export interface Career {

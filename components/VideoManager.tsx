@@ -48,7 +48,7 @@ function VideoManager({ token }: VideoManagerProps) {
 
   const fetchVideos = useCallback(async () => {
     try {
-      const response = await api.get('/videos');
+      const response = await api.get('/videos?t=' + Date.now());
       setVideos(response.data || []);
     } catch (error) {
       // エラーは既にapi.tsのinterceptorでログ出力されているため、ここでは重複ログを避ける
@@ -134,8 +134,8 @@ function VideoManager({ token }: VideoManagerProps) {
       category: video.category || '',
       client: video.client || '',
       project_date: video.project_date || '',
-      status: video.status || 'published',
-      featured: video.featured || false,
+      status: video.is_published ? 'published' : 'draft',
+      featured: video.is_featured || false,
       sort_order: video.sort_order || 0,
       youtube_url: (video.video_url && video.video_url.includes('youtube')) ? video.video_url : '',
       video_file: null
