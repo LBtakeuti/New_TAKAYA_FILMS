@@ -41,7 +41,9 @@ function ProfileManager({ token }: ProfileManagerProps) {
 
   const fetchProfile = async () => {
     try {
-      const response = await api.get('/simple-profile');
+      // KV Storageから全データを取得
+      const kvResponse = await api.get('/kv/get');
+      const response = { data: kvResponse.data.profile };
       const data = response.data;
       setProfile(data);
       setFormData({
@@ -75,13 +77,14 @@ function ProfileManager({ token }: ProfileManagerProps) {
       console.log('Sending profile data:', formData);
       
       // シンプルなエンドポイントを使用
-      const response = await api.put('/simple-profile', formData);
+      // KV Storageに保存
+      const response = await api.put('/kv/profile', formData);
       
       console.log('Response:', response.data);
       
-      if (response.data && response.data.message) {
+      if (response.data && response.data.success) {
         await fetchProfile();
-        showToast('プロフィールを更新しました！', 'success');
+        showToast('プロフィールを更新しました！メインサイトに反映されました。', 'success');
       }
     } catch (error: any) {
       console.error('Error updating profile:', error);

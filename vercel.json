@@ -4,6 +4,10 @@
   "installCommand": "npm install && cd frontend && npm install",
   "rewrites": [
     {
+      "source": "/api/kv/(.*)",
+      "destination": "/api/kv-storage.js"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/universal-handler.js"
     },

@@ -1,5 +1,5 @@
 // 統合APIハンドラー - すべてのエンドポイントを1つにまとめる
-const storage = require('../lib/persistent-storage');
+const storage = require('../lib/memory-storage');
 
 module.exports = async (req, res) => {
   // CORS設定
