@@ -5,16 +5,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/supabase-handler.js"
+      "destination": "/api/index.js"
     },
     {
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],
-  "functions": {
-    "api/supabase-handler.js": {
-      "runtime": "edge"
-    }
-  }
+  ]
 }
