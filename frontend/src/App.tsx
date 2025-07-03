@@ -23,7 +23,7 @@ function App() {
           console.error('Videos API error:', err);
           return { data: [] };
         }),
-        api.get('/profile').catch(err => {
+        api.get('/simple-profile').catch(err => {
           console.error('Profile API error:', err);
           return { 
             data: { 

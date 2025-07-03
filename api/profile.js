@@ -28,8 +28,6 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     console.log('Profile update request received:', req.body);
-    console.log('Environment:', process.env.NODE_ENV);
-    console.log('User:', req.user);
     const {
       name,
       title,

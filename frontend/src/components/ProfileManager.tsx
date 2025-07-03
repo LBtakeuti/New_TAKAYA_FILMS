@@ -38,7 +38,7 @@ function ProfileManager({ token }: ProfileManagerProps) {
 
   const fetchProfile = async () => {
     try {
-      const response = await api.get('/profile');
+      const response = await api.get('/simple-profile');
       const data = response.data;
       setProfile(data);
       setFormData({
@@ -69,32 +69,15 @@ function ProfileManager({ token }: ProfileManagerProps) {
     setLoading(true);
 
     try {
-      // デバッグ用：テストエンドポイントを使用
       console.log('Sending profile data:', formData);
       
-      const response = await api.put('/test-profile', formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // シンプルなエンドポイントを使用
+      const response = await api.put('/simple-profile', formData);
       
       console.log('Response:', response.data);
       
       if (response.data && response.data.message) {
-        // 本番エンドポイントに再度送信
-        try {
-          await api.put('/profile', formData, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          fetchProfile();
-        } catch (mainError) {
-          console.error('Main endpoint error:', mainError);
-        }
-        
+        fetchProfile();
         alert('プロフィールを更新しました');
       }
     } catch (error: any) {

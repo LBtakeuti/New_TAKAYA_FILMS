@@ -4,6 +4,10 @@
   "installCommand": "npm install && cd frontend && npm install",
   "rewrites": [
     {
+      "source": "/api/simple-profile",
+      "destination": "/api/simple-profile.js"
+    },
+    {
       "source": "/api/test-profile",
       "destination": "/api/test-profile.js"
     },
