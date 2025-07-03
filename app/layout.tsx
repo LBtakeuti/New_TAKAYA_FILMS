@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./index.css";
 
 export const metadata: Metadata = {
   title: "TAKAYA FILMS",
@@ -14,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className="font-sans">{children}</body>
+      <body>{children}</body>
     </html>
   );
 }
