@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { addCacheBuster } from './cache';
 
 // クライアントサイドで動的にベースURLを決定
 const getApiBaseUrl = () => {
@@ -25,6 +26,10 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    // キャッシュバスターを追加
+    if (config.method === 'get') {
+      config.url = addCacheBuster(config.url || '');
     }
     return config;
   },

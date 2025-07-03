@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import VideoManager from '@/components/VideoManager';
 import ProfileManagerV2 from '@/components/ProfileManagerV2';
+import CacheClearButton from '@/components/CacheClearButton';
 
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -109,6 +110,8 @@ const Dashboard: React.FC = () => {
           <ProfileManagerV2 token={token} />
         )}
       </div>
+      
+      <CacheClearButton />
     </>
   );
 };
