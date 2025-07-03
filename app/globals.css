@@ -22,6 +22,16 @@ body {
   letter-spacing: 0.05em;
 }
 
+/* Global link styles */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:visited {
+  color: inherit;
+}
+
 /* TAKAYA FILMS - Japanese Minimalist Design with TREE BACKGROUND */
 .App {
   min-height: 100vh;

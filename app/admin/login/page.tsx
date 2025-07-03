@@ -61,7 +61,6 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
               required
               className="admin-form-input"
-              }}
             />
           </div>
           
