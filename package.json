@@ -11,10 +11,19 @@
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ..",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["portfolio", "film", "video", "react", "node"],
+  "keywords": [
+    "portfolio",
+    "film",
+    "video",
+    "react",
+    "node"
+  ],
   "author": "TAKAYA",
   "license": "ISC",
   "dependencies": {
-    "concurrently": "^9.2.0"
+    "@supabase/supabase-js": "^2.50.3",
+    "bcryptjs": "^3.0.2",
+    "concurrently": "^9.2.0",
+    "jsonwebtoken": "^9.0.2"
   }
 }
