@@ -3,8 +3,9 @@
 /* Admin Layout */
 .admin-layout {
   min-height: 100vh;
-  background: #f8f8f8;
+  background: #f5f5f5;
   font-family: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+  color: #333;
 }
 
 /* Admin Header */
@@ -135,15 +136,17 @@
 }
 
 .admin-stat-card {
-  background: #f8f8f8;
+  background: #fff;
+  border: 1px solid #e0e0e0;
   padding: 30px;
   border-radius: 8px;
   text-align: center;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .admin-stat-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .admin-stat-card h3 {
@@ -177,7 +180,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8f8f8;
+  background: #fafafa;
 }
 
 .admin-login-box {
@@ -208,24 +211,26 @@
   font-size: 14px;
   letter-spacing: 0.05em;
   color: #333;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .admin-form-input {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 16px;
   font-family: inherit;
-  transition: border-color 0.3s ease;
-  background: #fafafa;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  background: #fff;
+  color: #333;
 }
 
 .admin-form-input:focus {
   outline: none;
-  border-color: #000;
+  border-color: #333;
   background: #fff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
 }
 
 .admin-error-message {
@@ -268,11 +273,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #000;
+  background: #f5f5f5;
 }
 
 .admin-loading-text {
-  color: #fff;
+  color: #333;
   font-size: 18px;
   letter-spacing: 0.1em;
   font-weight: 300;
