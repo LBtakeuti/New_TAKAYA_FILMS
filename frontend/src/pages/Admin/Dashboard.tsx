@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import VideoManager from '../../components/VideoManager';
-import ProfileManager from '../../components/ProfileManager';
+import ProfileManagerV2 from '../../components/ProfileManagerV2';
 
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -302,7 +302,7 @@ const Dashboard: React.FC = () => {
               }}>
                 Profile Management
               </h2>
-              <ProfileManager token={token} />
+              <ProfileManagerV2 token={token} />
             </div>
           )}
         </main>
