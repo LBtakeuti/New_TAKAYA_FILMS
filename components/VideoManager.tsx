@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../utils/api';
 
 interface Video {
@@ -44,18 +44,17 @@ function VideoManager({ token }: VideoManagerProps) {
 
   useEffect(() => {
     fetchVideos();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchVideos]);
 
-  const fetchVideos = async () => {
+  const fetchVideos = useCallback(async () => {
     try {
-      const response = await api.get('/kv/videos');
+      const response = await api.get('/videos');
       setVideos(response.data || []);
     } catch (error) {
-      console.error('Error fetching videos:', error);
+      // エラーは既にapi.tsのinterceptorでログ出力されているため、ここでは重複ログを避ける
       setVideos([]);
     }
-  };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,25 +88,36 @@ function VideoManager({ token }: VideoManagerProps) {
 
       let response;
       if (editingVideo) {
-        response = await api.put(`/kv/videos/${editingVideo.id}`, videoData);
+        response = await api.put(`/videos/${editingVideo.id}`, videoData);
       } else {
-        response = await api.post('/kv/videos', videoData);
+        response = await api.post('/videos', videoData);
       }
 
+      // 保存成功
       console.log('Video saved successfully:', response.data);
       
-      fetchVideos();
-      resetForm();
-      setIsModalOpen(false);
-      alert('動画を保存しました');
+      // 成功後の処理を少し遅延させる
+      setTimeout(() => {
+        fetchVideos();
+        resetForm();
+        setIsModalOpen(false);
+        alert('動画を保存しました！');
+      }, 100);
     } catch (error: any) {
-      console.error('Error saving video:', error);
+      // エラーは既にapi.tsのinterceptorでログ出力されている
       
       let errorMessage = 'エラーが発生しました';
-      if (error.response?.data?.error) {
-        errorMessage = `エラー: ${error.response.data.error}`;
+      if (error.userMessage) {
+        errorMessage = error.userMessage;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
       } else if (error.message) {
-        errorMessage = `エラー: ${error.message}`;
+        errorMessage = error.message;
+      }
+      
+      // CORSエラーの場合の特別な処理
+      if (error.message && error.message.includes('Network Error')) {
+        errorMessage = '保存中にエラーが発生しました。ページを再読み込みしてください。';
       }
       
       alert(errorMessage);
@@ -137,11 +147,11 @@ function VideoManager({ token }: VideoManagerProps) {
     if (!window.confirm('この動画を削除しますか？')) return;
 
     try {
-      await api.delete(`/kv/videos/${id}`);
+      await api.delete(`/videos/${id}`);
       fetchVideos();
       alert('動画を削除しました');
     } catch (error) {
-      console.error('Error deleting video:', error);
+      // エラーは既にapi.tsのinterceptorでログ出力されている
       alert('削除エラーが発生しました');
     }
   };

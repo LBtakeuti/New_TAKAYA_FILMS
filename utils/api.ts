@@ -1,11 +1,22 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? '/api'
-  : 'http://localhost:3000/api';
+// クライアントサイドで動的にベースURLを決定
+const getApiBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    // ブラウザ環境
+    const { protocol, hostname, port } = window.location;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:3000/api';
+    }
+    // 本番環境では相対パスを使用
+    return '/api';
+  }
+  // サーバーサイド（ビルド時など）
+  return process.env.NEXT_PUBLIC_API_URL || '/api';
+};
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getApiBaseUrl(),
 });
 
 // Add authorization header to requests when token exists
@@ -40,9 +51,13 @@ api.interceptors.response.use(
     
     // For network errors or 500 errors, provide a more user-friendly message
     if (!error.response) {
-      error.userMessage = 'ネットワークエラーです。接続を確認してください。';
+      error.userMessage = 'ネットワークエラーが発生しました。インターネット接続を確認してください。';
     } else if (error.response.status >= 500) {
-      error.userMessage = 'サーバーエラーです。しばらく待ってから再試行してください。';
+      error.userMessage = 'サーバーエラーが発生しました。しばらくしてから再度お試しください。';
+    } else if (error.response.status === 403) {
+      error.userMessage = '認証エラーです。再度ログインしてください。';
+    } else if (error.response.status === 404) {
+      error.userMessage = 'APIエンドポイントが見つかりません。';
     }
     
     return Promise.reject(error);

@@ -61,6 +61,29 @@ export default function HomePage() {
     }
   };
 
+  // YouTube URLからサムネイルを取得
+  const getYouTubeThumbnail = (url: string): string => {
+    const videoId = extractYouTubeId(url);
+    if (videoId) {
+      return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    }
+    // YouTube以外の場合はデフォルト画像
+    return '/placeholder-video.jpg';
+  };
+
+  // YouTube URLからVideo IDを抽出
+  const extractYouTubeId = (url: string): string | null => {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+    return match ? match[1] : null;
+  };
+
+  // ビデオを新しいウィンドウで開く
+  const openVideo = (video: Video) => {
+    if (video.video_url) {
+      window.open(video.video_url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <div className="App">
       {/* Navigation */}
@@ -114,25 +137,14 @@ export default function HomePage() {
                 onMouseLeave={() => handleVideoLeave(video.id)}
               >
                 <div className="video-thumbnail">
-                  {video.thumbnail_url && (
+                  {video.video_url && (
                     <img 
-                      src={video.thumbnail_url} 
+                      src={getYouTubeThumbnail(video.video_url)} 
                       alt={video.title}
                       loading="lazy"
                     />
                   )}
-                  {playingVideo?.id === video.id && (
-                    <div className="video-preview">
-                      <video
-                        src={video.video_url}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                      />
-                    </div>
-                  )}
-                  <div className="play-overlay">
+                  <div className="play-overlay" onClick={() => openVideo(video)}>
                     <span className="play-icon">▶</span>
                   </div>
                 </div>

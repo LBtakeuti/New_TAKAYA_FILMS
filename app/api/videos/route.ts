@@ -1,29 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { corsHeaders, handleCorsOptions } from '@/app/api/middleware/cors';
 const mockStorage = require('@/lib/mock-storage');
 
 // Supabase設定
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Supabaseクライアントの取得
 const getSupabase = () => {
-  if (!supabaseUrl || !supabaseKey) {
-    console.warn('Supabase environment variables are not set. Using mock storage.');
+  if (!supabaseUrl || !supabaseKey || 
+      supabaseUrl === 'your_supabase_url_here' || 
+      supabaseKey === 'your_supabase_anon_key_here') {
+    console.warn('Supabase environment variables are not properly configured. Using mock storage.');
     return null;
   }
-  return createClient(supabaseUrl, supabaseKey);
+  try {
+    return createClient(supabaseUrl, supabaseKey);
+  } catch (error) {
+    console.error('Failed to create Supabase client:', error);
+    return null;
+  }
 };
 
 // GET: 動画一覧取得
 export async function GET(request: NextRequest) {
   try {
+    console.log('Supabase URL:', supabaseUrl);
+    console.log('Supabase Key exists:', !!supabaseKey);
+    
     const supabase = getSupabase();
     
     if (!supabase) {
+      console.log('Using mock storage for videos');
       // モックストレージを使用
       const videos = mockStorage.videos.getAll();
-      return NextResponse.json(videos || []);
+      const response = NextResponse.json(videos || []);
+      return corsHeaders(response);
     }
     
     const { data, error } = await supabase
@@ -35,9 +48,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     
-    return NextResponse.json(data || []);
+    const response = NextResponse.json(data || []);
+    return corsHeaders(response);
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    const response = NextResponse.json({ error: err.message }, { status: 500 });
+    return corsHeaders(response);
   }
 }
 
@@ -50,18 +65,18 @@ export async function POST(request: NextRequest) {
     console.log('Creating video with data:', body);
     
     if (!title) {
-      return NextResponse.json({ error: 'タイトルは必須です' }, { status: 400 });
+      const response = NextResponse.json({ error: 'タイトルは必須です' }, { status: 400 });
+      return corsHeaders(response);
     }
     
     const insertData = {
       title,
       description: description || '',
       video_url: youtube_url || video_url || '',
-      thumbnail_url: '',
       category: category || '',
       client: client || '',
-      status: status || 'published',
-      featured: featured || false,
+      is_published: status === 'published',
+      is_featured: featured || false,
       sort_order: sort_order || 0
     };
     
@@ -72,11 +87,12 @@ export async function POST(request: NextRequest) {
     if (!supabase) {
       // モックストレージを使用
       const newVideo = mockStorage.videos.create(insertData);
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         id: newVideo.id, 
         message: 'Video created successfully', 
         data: newVideo 
       });
+      return corsHeaders(response);
     }
     
     const { data, error } = await supabase
@@ -86,25 +102,34 @@ export async function POST(request: NextRequest) {
     
     if (error) {
       console.error('Supabase error:', error);
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         error: error.message,
         details: error.details || 'データベースエラーが発生しました'
       }, { status: 500 });
+      return corsHeaders(response);
     }
     
     if (!data || data.length === 0) {
-      return NextResponse.json({ error: 'データの保存に失敗しました' }, { status: 500 });
+      const response = NextResponse.json({ error: 'データの保存に失敗しました' }, { status: 500 });
+      return corsHeaders(response);
     }
     
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       id: data[0].id, 
       message: 'Video created successfully', 
       data: data[0] 
     });
+    return corsHeaders(response);
   } catch (err: any) {
     console.error('Server error:', err);
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       error: err.message || 'サーバーエラーが発生しました' 
     }, { status: 500 });
+    return corsHeaders(response);
   }
+}
+
+// OPTIONS request for CORS
+export async function OPTIONS(request: NextRequest) {
+  return handleCorsOptions();
 }

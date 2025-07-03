@@ -4,16 +4,23 @@ const mockStorage = require('@/lib/mock-storage');
 import { verifyToken } from '@/app/api/middleware/auth';
 
 // Supabase設定
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Supabaseクライアントの取得
 const getSupabase = () => {
-  if (!supabaseUrl || !supabaseKey) {
-    console.warn('Supabase environment variables are not set. Using mock storage.');
+  if (!supabaseUrl || !supabaseKey || 
+      supabaseUrl === 'your_supabase_url_here' || 
+      supabaseKey === 'your_supabase_anon_key_here') {
+    console.warn('Supabase environment variables are not properly configured. Using mock storage.');
     return null;
   }
-  return createClient(supabaseUrl, supabaseKey);
+  try {
+    return createClient(supabaseUrl, supabaseKey);
+  } catch (error) {
+    console.error('Failed to create Supabase client:', error);
+    return null;
+  }
 };
 
 // GET: プロフィール取得（公開）
@@ -94,14 +101,18 @@ export async function PUT(request: NextRequest) {
         name,
         title,
         bio,
-        email,
-        phone,
-        location,
-        website,
-        social_links,
+        contact: {
+          email: email || '',
+          phone: phone || '',
+          location: location || '',
+          website: website || ''
+        },
+        social_links: {
+          ...social_links,
+          instagram: instagram_url || social_links?.instagram || ''
+        },
         skills,
         services,
-        instagram_url,
         updated_at: new Date().toISOString()
       };
       
@@ -136,14 +147,18 @@ export async function PUT(request: NextRequest) {
         name,
         title,
         bio,
-        email,
-        phone,
-        location,
-        website,
-        social_links,
+        contact: {
+          email: email || '',
+          phone: phone || '',
+          location: location || '',
+          website: website || ''
+        },
+        social_links: {
+          ...social_links,
+          instagram: instagram_url || social_links?.instagram || ''
+        },
         skills,
         services,
-        instagram_url,
         updated_at: new Date().toISOString()
       };
 

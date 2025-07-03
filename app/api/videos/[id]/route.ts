@@ -3,16 +3,23 @@ import { createClient } from '@supabase/supabase-js';
 const mockStorage = require('@/lib/mock-storage');
 
 // Supabase設定
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Supabaseクライアントの取得
 const getSupabase = () => {
-  if (!supabaseUrl || !supabaseKey) {
-    console.warn('Supabase environment variables are not set. Using mock storage.');
+  if (!supabaseUrl || !supabaseKey || 
+      supabaseUrl === 'your_supabase_url_here' || 
+      supabaseKey === 'your_supabase_anon_key_here') {
+    console.warn('Supabase environment variables are not properly configured. Using mock storage.');
     return null;
   }
-  return createClient(supabaseUrl, supabaseKey);
+  try {
+    return createClient(supabaseUrl, supabaseKey);
+  } catch (error) {
+    console.error('Failed to create Supabase client:', error);
+    return null;
+  }
 };
 
 // PUT: 動画更新
@@ -31,8 +38,8 @@ export async function PUT(
       video_url: youtube_url || video_url || '',
       category: category || '',
       client: client || '',
-      status: status || 'published',
-      featured: featured || false,
+      is_published: status === 'published',
+      is_featured: featured || false,
       sort_order: sort_order || 0
     };
 
