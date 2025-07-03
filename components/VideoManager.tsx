@@ -102,6 +102,9 @@ function VideoManager({ token }: VideoManagerProps) {
         resetForm();
         setIsModalOpen(false);
         alert('動画を保存しました！');
+        
+        // 新しいタブでサイトを開く
+        window.open('/', '_blank');
       }, 100);
     } catch (error: any) {
       // エラーは既にapi.tsのinterceptorでログ出力されている
@@ -176,6 +179,21 @@ function VideoManager({ token }: VideoManagerProps) {
     return url.includes('youtube.com') || url.includes('youtu.be');
   };
 
+  // YouTube動画IDを抽出
+  const getYouTubeId = (url: string): string | null => {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+    return match ? match[1] : null;
+  };
+
+  // YouTubeサムネイルURLを取得
+  const getYouTubeThumbnail = (url: string): string | null => {
+    const videoId = getYouTubeId(url);
+    if (videoId) {
+      return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+    }
+    return null;
+  };
+
   return (
     <div style={{ padding: '0' }}>
       {/* Header */}
@@ -236,13 +254,36 @@ function VideoManager({ token }: VideoManagerProps) {
             <div style={{
               width: '100%',
               height: '180px',
-              background: '#f0f0f0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#666'
+              background: '#000',
+              position: 'relative',
+              overflow: 'hidden'
             }}>
-              {isYouTubeUrl(video.video_url) ? '📺 YouTube' : '🎬 Video'}
+              {isYouTubeUrl(video.video_url) && getYouTubeThumbnail(video.video_url) ? (
+                <img 
+                  src={getYouTubeThumbnail(video.video_url)!}
+                  alt={video.title}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#666',
+                  background: '#1a1a1a'
+                }}>
+                  {isYouTubeUrl(video.video_url) ? '📺 YouTube' : '🎬 Video'}
+                </div>
+              )}
             </div>
 
             {/* Content */}
@@ -364,6 +405,22 @@ function VideoManager({ token }: VideoManagerProps) {
                     boxSizing: 'border-box'
                   }}
                 />
+                {/* YouTube URLプレビュー */}
+                {formData.youtube_url && isYouTubeUrl(formData.youtube_url) && getYouTubeThumbnail(formData.youtube_url) && (
+                  <div style={{ marginTop: '10px' }}>
+                    <img 
+                      src={getYouTubeThumbnail(formData.youtube_url)!}
+                      alt="プレビュー"
+                      style={{
+                        width: '100%',
+                        maxWidth: '200px',
+                        height: 'auto',
+                        borderRadius: '4px',
+                        border: '1px solid #555'
+                      }}
+                    />
+                  </div>
+                )}
               </div>
 
               <div style={{ marginBottom: '20px' }}>

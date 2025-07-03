@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>キャッシュクリア</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+            width: 100%;
+        }
+        button:hover {
+            background: #cc0000;
+        }
+        .log {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>完全キャッシュクリア</h1>
+        <p>このページは、すべてのキャッシュを完全にクリアします。</p>
+        
+        <button onclick="clearAllCache()">すべてのキャッシュをクリア</button>
+        
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function clearAllCache() {
+            log('キャッシュクリアを開始します...');
+
+            try {
+                // 1. Service Worker を解除
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                        log('Service Worker を解除しました', 'success');
+                    }
+                }
+
+                // 2. Cache API をクリア
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    for (let name of cacheNames) {
+                        await caches.delete(name);
+                        log(`キャッシュ "${name}" を削除しました`, 'success');
+                    }
+                }
+
+                // 3. LocalStorage をクリア
+                localStorage.clear();
+                log('LocalStorage をクリアしました', 'success');
+
+                // 4. SessionStorage をクリア
+                sessionStorage.clear();
+                log('SessionStorage をクリアしました', 'success');
+
+                // 5. IndexedDB をクリア
+                if ('indexedDB' in window) {
+                    const databases = await indexedDB.databases();
+                    for (let db of databases) {
+                        await indexedDB.deleteDatabase(db.name);
+                        log(`IndexedDB "${db.name}" を削除しました`, 'success');
+                    }
+                }
+
+                log('すべてのキャッシュをクリアしました！', 'success');
+                log('3秒後にホームページに移動します...', 'info');
+
+                // 3秒後にホームページへリダイレクト
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 3000);
+
+            } catch (error) {
+                log(`エラー: ${error.message}`, 'error');
+            }
+        }
+
+        // ページ読み込み時の情報を表示
+        window.onload = async function() {
+            log('現在のキャッシュ状態を確認中...');
+            
+            // Service Worker の状態
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                log(`Service Worker: ${registrations.length}個登録されています`);
+            }
+            
+            // Cache API の状態
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                log(`Cache API: ${cacheNames.length}個のキャッシュがあります`);
+            }
+            
+            // LocalStorage のサイズ
+            log(`LocalStorage: ${Object.keys(localStorage).length}個のアイテム`);
+        };
+    </script>
+</body>
+</html>
