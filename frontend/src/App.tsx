@@ -19,7 +19,7 @@ function App() {
   const fetchData = async () => {
     try {
       const [videosRes, profileRes] = await Promise.all([
-        api.get('/videos').catch(err => {
+        api.get('/simple-videos').catch(err => {
           console.error('Videos API error:', err);
           return { data: [] };
         }),

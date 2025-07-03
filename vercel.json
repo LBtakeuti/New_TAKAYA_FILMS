@@ -8,6 +8,10 @@
       "destination": "/api/simple-profile.js"
     },
     {
+      "source": "/api/simple-videos",
+      "destination": "/api/simple-videos.js"
+    },
+    {
       "source": "/api/test-profile",
       "destination": "/api/test-profile.js"
     },

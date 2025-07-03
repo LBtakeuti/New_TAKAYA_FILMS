@@ -60,8 +60,10 @@ module.exports = async (req, res) => {
     return authHandlers.verify(req, res);
   }
   
+  // プロフィールAPIは/api/simple-profileに移行
   if (url.startsWith('/api/profile') && method === 'GET') {
-    return profileHandlers.getProfile(req, res);
+    // 404を返す代わりにリダイレクト
+    return res.status(301).json({ message: 'Use /api/simple-profile instead' });
   }
   
   if (url.startsWith('/api/profile') && method === 'PUT') {

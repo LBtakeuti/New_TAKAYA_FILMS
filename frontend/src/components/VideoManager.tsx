@@ -47,7 +47,7 @@ function VideoManager({ token }: VideoManagerProps) {
 
   const fetchVideos = async () => {
     try {
-      const response = await api.get('/videos');
+      const response = await api.get('/simple-videos');
       setVideos(response.data || []);
     } catch (error) {
       console.error('Error fetching videos:', error);
@@ -87,9 +87,9 @@ function VideoManager({ token }: VideoManagerProps) {
 
       let response;
       if (editingVideo) {
-        response = await api.put(`/videos/${editingVideo.id}`, videoData);
+        response = await api.put(`/simple-videos/${editingVideo.id}`, videoData);
       } else {
-        response = await api.post('/videos', videoData);
+        response = await api.post('/simple-videos', videoData);
       }
 
       console.log('Video saved successfully:', response.data);
@@ -135,7 +135,7 @@ function VideoManager({ token }: VideoManagerProps) {
     if (!window.confirm('この動画を削除しますか？')) return;
 
     try {
-      await api.delete(`/videos/${id}`);
+      await api.delete(`/simple-videos/${id}`);
       fetchVideos();
       alert('動画を削除しました');
     } catch (error) {
