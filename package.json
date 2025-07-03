@@ -1,29 +1,31 @@
 {
-  "name": "new-takaya-films",
+  "name": "takaya-films",
   "version": "1.0.0",
-  "description": "TAKAYA FILMS Portfolio Website",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:frontend": "cd frontend && PORT=3000 npm start",
-    "dev:backend": "cd backend && npm run dev",
-    "build": "cd frontend && npm run build",
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ..",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
-  "keywords": [
-    "portfolio",
-    "film",
-    "video",
-    "react",
-    "node"
-  ],
-  "author": "TAKAYA",
-  "license": "ISC",
   "dependencies": {
     "@supabase/supabase-js": "^2.50.3",
-    "bcryptjs": "^3.0.2",
-    "concurrently": "^9.2.0",
-    "jsonwebtoken": "^9.0.2"
+    "@types/jsonwebtoken": "^9.0.10",
+    "axios": "^1.10.0",
+    "jsonwebtoken": "^9.0.2",
+    "next": "15.3.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

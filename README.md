@@ -1,88 +1,36 @@
-# 🎬 TAKAYA FILMS Portfolio
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-映像クリエイター TAKAYA のポートフォリオサイト + 管理システム
+## Getting Started
 
-## 🚀 デプロイ情報
+First, run the development server:
 
-- **本番サイト**: https://your-project.vercel.app (デプロイ後に更新)
-- **管理画面**: https://your-project.vercel.app/admin
-- **技術スタック**: React + Supabase + Vercel + Slack
-- **初期ログイン**: admin / admin123
-
-## 技術構成
-
-### フロントエンド
-- React.js + TypeScript
-- Tailwind CSS
-- React Router DOM
-- Axios
-
-### バックエンド
-- Node.js + Express.js
-- SQLite
-- JWT認証
-- Multer (ファイルアップロード)
-- bcryptjs (パスワードハッシュ化)
-
-## 開発環境セットアップ
-
-1. プロジェクトのクローン
 ```bash
-git clone https://github.com/LBtakeuti/New_TAKAYA_FILMS.git
-cd New_TAKAYA_FILMS
-```
-
-2. 依存関係のインストール
-```bash
-npm install
-cd frontend && npm install
-cd ../backend && npm install
-```
-
-3. 環境変数の設定
-```bash
-# backend/.env ファイルを作成し、以下を設定
-PORT=5000
-JWT_SECRET=your_jwt_secret_key
-FRONTEND_URL=http://localhost:3000
-NODE_ENV=development
-```
-
-4. 開発サーバーの起動
-```bash
-# プロジェクトルートから実行（フロントエンド・バックエンド同時起動）
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## 利用可能なスクリプト
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-- `npm run dev` - フロントエンドとバックエンドを同時起動
-- `npm run dev:frontend` - フロントエンドのみ起動
-- `npm run dev:backend` - バックエンドのみ起動
-- `npm run build` - フロントエンドのビルド
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## データベース構造
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-### Tables
-- `users` - 管理者認証用
-- `videos` - 動画情報管理
-- `career` - 経歴情報
-- `profile` - プロフィール情報
+## Learn More
 
-## 機能概要
+To learn more about Next.js, take a look at the following resources:
 
-### フロントエンド
-- ポートフォリオ表示
-- 動画プレイヤー
-- レスポンシブデザイン
-- 管理画面（認証必要）
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-### バックエンド
-- JWT認証システム
-- RESTful API
-- ファイルアップロード機能
-- データベース管理
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## 作成者
+## Deploy on Vercel
 
-TAKAYA FILMS
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

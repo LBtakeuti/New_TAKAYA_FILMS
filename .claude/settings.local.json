@@ -34,7 +34,11 @@
       "Bash(rg:*)",
       "Bash(find:*)",
       "Bash(DISABLE_ESLINT_PLUGIN=true CI=false npm run build --prefix frontend)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(npx create-next-app:*)",
+      "Bash(mv:*)",
+      "Bash(true)",
+      "Bash(node:*)"
     ],
     "deny": []
   }

@@ -1,47 +1,41 @@
-# Dependencies
-node_modules/
-*/node_modules/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# Build outputs
-build/
-dist/
-frontend/build/
+# testing
+/coverage
 
-# Database
-database/*.db
-database/*.sqlite
-database/*.sqlite3
-*.db
+# next.js
+/.next/
+/out/
 
-# Uploads
-backend/uploads/*
-!backend/uploads/.gitkeep
+# production
+/build
 
-# Logs
-*.log
+# misc
+.DS_Store
+*.pem
+
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
+# env files (can opt-in for committing if needed)
+.env*
 
-# OS
-.DS_Store
-Thumbs.db
-
-# React
-frontend/.eslintcache
-
-# Vercel
+# vercel
 .vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
