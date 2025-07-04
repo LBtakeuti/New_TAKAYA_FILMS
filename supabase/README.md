@@ -16,13 +16,6 @@
   - 連絡先とSNSリンクはJSONBで柔軟に管理
   - 1レコード制限あり
 
-### 2. videos テーブル
-- **目的**: 動画作品の管理
-- **特徴**:
-  - 必須項目は最小限（title, video_url）
-  - 公開/非公開の制御
-  - 並び順の管理
-
 ## 🚀 セットアップ手順
 
 ### 1. Supabaseプロジェクトの作成
@@ -58,27 +51,6 @@ const { data, error } = await supabase
   .single();
 ```
 
-### 動画一覧取得（公開のみ）
-```javascript
-const { data, error } = await supabase
-  .from('videos')
-  .select('*')
-  .eq('is_published', true)
-  .order('sort_order', { ascending: true })
-  .order('created_at', { ascending: false });
-```
-
-### 動画追加
-```javascript
-const { data, error } = await supabase
-  .from('videos')
-  .insert({
-    title: '作品タイトル',
-    video_url: 'https://youtube.com/...',
-    category: 'MV',
-    is_featured: false
-  });
-```
 
 ## 📝 メンテナンス
 
@@ -95,7 +67,6 @@ Supabaseは自動バックアップを提供していますが、重要なデー
 ```sql
 -- RLSを一時的に無効化（開発時のみ）
 ALTER TABLE profile DISABLE ROW LEVEL SECURITY;
-ALTER TABLE videos DISABLE ROW LEVEL SECURITY;
 ```
 
 ### データが取得できない場合
