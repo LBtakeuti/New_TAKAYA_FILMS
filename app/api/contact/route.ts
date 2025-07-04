@@ -5,7 +5,7 @@ const sendSlackMessage = async (formData: { name: string; email: string; subject
   const slackWebhookUrl = 'https://hooks.slack.com/services/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';
   
   // 開発モードまたはWebhook URL無効時はコンソールログに出力
-  const isDevelopmentMode = true; // Webhook URLが無効なため一時的に開発モード
+  const isDevelopmentMode = true; // Webhook URLが無効なため開発モード継続
   
   if (isDevelopmentMode) {
     console.log('=== 📧 TAKAYA FILMS - 新規お問い合わせ ===');
