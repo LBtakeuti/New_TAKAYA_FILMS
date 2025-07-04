@@ -13,6 +13,24 @@ export interface Career {
   updated_at: string;
 }
 
+export interface Video {
+  id: number;
+  title: string;
+  description: string;
+  video_url: string;
+  thumbnail_url?: string;
+  category: string;
+  client?: string;
+  project_date?: string;
+  status: 'published' | 'draft';
+  is_published: boolean;
+  featured: boolean;
+  is_featured: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at?: string;
+}
+
 export interface Profile {
   id: number;
   name: string;

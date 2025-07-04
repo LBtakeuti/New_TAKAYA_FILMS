@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ProfileManagerV2 from '@/components/ProfileManagerV2';
+import VideoManager from '@/components/VideoManager';
 
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -66,7 +67,7 @@ const Dashboard: React.FC = () => {
       {/* Navigation */}
       <div className="admin-nav">
         <nav className="admin-nav-content">
-          {['overview', 'profile'].map(view => (
+          {['overview', 'works', 'profile'].map(view => (
             <button
               key={view}
               onClick={() => setCurrentView(view)}
@@ -94,6 +95,10 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {currentView === 'works' && (
+          <VideoManager token={token} />
         )}
 
         {currentView === 'profile' && (
