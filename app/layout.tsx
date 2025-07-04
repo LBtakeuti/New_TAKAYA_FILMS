@@ -4,7 +4,7 @@ import "./styles.css";
 
 export const metadata: Metadata = {
   title: "TAKAYA FILMS",
-  description: "Videographer / Video Director - Takaya Toriyabe",
+  description: "Film Director - Takaya Toriyabe",
 };
 
 export default function RootLayout({

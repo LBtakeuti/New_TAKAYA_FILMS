@@ -8,17 +8,16 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-xl font-bold mb-4">TAKAYA FILMS</h3>
             <p className="text-gray-300">
-              Professional video creator specializing in cinematic storytelling and commercial production.
+              Professional film director specializing in cinematic storytelling and commercial production.
             </p>
           </div>
           
           <div>
             <h4 className="text-lg font-semibold mb-4">Services</h4>
             <ul className="space-y-2 text-gray-300">
-              <li>Commercial Video Production</li>
-              <li>Corporate Video</li>
+              <li>Commercial Production</li>
+              <li>Corporate Films</li>
               <li>Event Documentation</li>
-              <li>Music Videos</li>
               <li>Short Films</li>
             </ul>
           </div>

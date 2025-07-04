@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import VideoManager from '@/components/VideoManager';
 import ProfileManagerV2 from '@/components/ProfileManagerV2';
 import CacheClearButton from '@/components/CacheClearButton';
 
@@ -68,7 +67,7 @@ const Dashboard: React.FC = () => {
       {/* Navigation */}
       <div className="admin-nav">
         <nav className="admin-nav-content">
-          {['overview', 'videos', 'profile'].map(view => (
+          {['overview', 'profile'].map(view => (
             <button
               key={view}
               onClick={() => setCurrentView(view)}
@@ -87,10 +86,6 @@ const Dashboard: React.FC = () => {
             <h2>Dashboard Overview</h2>
             <div className="admin-stats-grid">
               <div className="admin-stat-card">
-                <h3>Total Videos</h3>
-                <div className="admin-stat-value">-</div>
-              </div>
-              <div className="admin-stat-card">
                 <h3>Profile Status</h3>
                 <div className="admin-stat-status active">Active</div>
               </div>
@@ -100,10 +95,6 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
-
-        {currentView === 'videos' && (
-          <VideoManager token={token} />
         )}
 
         {currentView === 'profile' && (

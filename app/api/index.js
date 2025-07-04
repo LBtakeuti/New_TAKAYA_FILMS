@@ -19,8 +19,8 @@ module.exports = (req, res) => {
       profile: {
         id: 1,
         name: 'TAKAYA FILMS',
-        title: 'Film Director & Video Creator',
-        bio: 'プロフェッショナルなビデオグラファーとして、CM、ミュージックビデオ、ドキュメンタリーを専門に制作しています。',
+        title: 'Film Director',
+        bio: 'プロフェッショナルな映画監督として、CM、ドキュメンタリーを専門に制作しています。',
         email: 'contact@takayafilms.com',
         phone: '090-1234-5678',
         location: 'Tokyo, Japan',
@@ -32,10 +32,9 @@ module.exports = (req, res) => {
           linkedin: 'https://linkedin.com/in/takayafilms',
           twitter: ''
         },
-        skills: ['Video Production', 'Directing', 'Editing', 'Color Grading'],
-        services: ['Commercial Production', 'Music Video', 'Documentary', 'Corporate Video']
-      },
-      videos: []
+        skills: ['Film Production', 'Directing', 'Editing', 'Color Grading'],
+        services: ['Commercial Production', 'Documentary', 'Corporate Films']
+      }
     };
   }
 
@@ -72,19 +71,6 @@ module.exports = (req, res) => {
         const body = await parseBody();
         global.store.profile = { ...global.store.profile, ...body };
         return res.json({ success: true, data: global.store.profile });
-      }
-
-      // 動画一覧
-      if (url === '/api/videos' && method === 'GET') {
-        return res.json(global.store.videos);
-      }
-
-      // 動画追加
-      if (url === '/api/videos' && method === 'POST') {
-        const body = await parseBody();
-        const newVideo = { id: Date.now(), ...body };
-        global.store.videos.push(newVideo);
-        return res.json(newVideo);
       }
 
       // ログイン

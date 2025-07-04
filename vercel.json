@@ -5,12 +5,6 @@
     },
     "app/api/profile/route.ts": {
       "maxDuration": 10
-    },
-    "app/api/videos/route.ts": {
-      "maxDuration": 10
-    },
-    "app/api/videos/[id]/route.ts": {
-      "maxDuration": 10
     }
   },
   "headers": [
