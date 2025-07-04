@@ -184,12 +184,6 @@ a:visited {
   color: #000000;
 }
 
-  opacity: 0.8;
-  letter-spacing: 0.02em;
-  word-break: break-word;
-  hyphens: auto;
-}
-
 /* Buttons */
 .btn-primary {
   background: #000;
