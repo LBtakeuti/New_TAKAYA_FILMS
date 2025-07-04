@@ -38,7 +38,8 @@
       "Bash(npx create-next-app:*)",
       "Bash(mv:*)",
       "Bash(true)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(echo $NODE_ENV)"
     ],
     "deny": []
   }

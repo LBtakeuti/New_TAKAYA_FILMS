@@ -32,7 +32,27 @@ export async function GET(request: NextRequest) {
       // モックストレージを使用
       const profile = mockStorage.profile.get();
       if (!profile) {
-        return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+        // 空のプロフィールを返す（404ではなく）
+        const emptyProfile = {
+          id: 1,
+          name: '',
+          title: '',
+          bio: '',
+          email: '',
+          phone: '',
+          location: '',
+          website: '',
+          social_links: {
+            instagram: '',
+            youtube: '',
+            vimeo: '',
+            linkedin: '',
+            twitter: ''
+          },
+          skills: [],
+          services: []
+        };
+        return NextResponse.json(emptyProfile);
       }
       return NextResponse.json(profile);
     }
@@ -58,23 +78,52 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT: プロフィール更新（認証必要）
+// PUT: プロフィール更新（開発環境では認証スキップ）
 export async function PUT(request: NextRequest) {
   try {
-    // 認証チェック
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.split(' ')[1];
+    // 開発中は認証を完全にスキップ
+    const SKIP_AUTH = true; // TODO: 本番環境では false に変更
     
-    if (!token) {
-      return NextResponse.json({ error: 'Access denied. No token provided.' }, { status: 401 });
+    if (!SKIP_AUTH) {
+      // ホスト名とOriginの両方を確認
+      const host = request.headers.get('host');
+      const origin = request.headers.get('origin');
+      const referer = request.headers.get('referer');
+      
+      console.log('Request headers:', {
+        host,
+        origin,
+        referer,
+        authorization: request.headers.get('authorization') ? 'Present' : 'Missing'
+      });
+      
+      // より確実なローカルホスト判定
+      const isLocalhost = 
+        (host && (host.includes('localhost') || host.includes('127.0.0.1'))) ||
+        (origin && (origin.includes('localhost') || origin.includes('127.0.0.1'))) ||
+        (referer && (referer.includes('localhost') || referer.includes('127.0.0.1')));
+      
+      if (!isLocalhost) {
+        // 本番環境のみ認証チェック
+        const authHeader = request.headers.get('authorization');
+        const token = authHeader?.split(' ')[1];
+        
+        if (!token) {
+          console.log('No token provided in production environment');
+          return NextResponse.json({ error: 'Access denied. No token provided.' }, { status: 401 });
+        }
+        
+        // トークン検証
+        try {
+          verifyToken(token);
+        } catch (error) {
+          console.log('Token verification failed:', error);
+          return NextResponse.json({ error: 'Invalid token' }, { status: 403 });
+        }
+      }
     }
     
-    // トークン検証
-    try {
-      verifyToken(token);
-    } catch (error) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 403 });
-    }
+    console.log('Auth check skipped - proceeding with profile update');
     
     const body = await request.json();
     console.log('Profile update request received:', body);

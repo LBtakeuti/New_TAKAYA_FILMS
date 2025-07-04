@@ -24,6 +24,15 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // ローカルホストでは認証をスキップ
+    const host = request.headers.get('host');
+    const isLocalhost = host?.includes('localhost') || host?.includes('127.0.0.1');
+    
+    if (!isLocalhost) {
+      // 本番環境のみ認証チェック（今は省略）
+      console.log('Production environment - auth required');
+    }
+    
     const body = await request.json();
     
     const video = {

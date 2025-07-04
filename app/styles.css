@@ -45,10 +45,10 @@
   border-color: #000;
 }
 
-/* Video Grid - YouTube Style */
+/* Video Grid - 2 Column Layout */
 .video-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px 16px;
   margin-bottom: 100px;
 }
@@ -357,11 +357,13 @@
 }
 
 .profile-bio {
-  font-size: 16px;
-  line-height: 1.8;
+  font-size: 15px;
+  line-height: 2;
   color: #333;
-  max-width: 600px;
-  margin: 0 auto 40px;
+  max-width: 700px;
+  margin: 30px auto 40px;
+  text-align: justify;
+  letter-spacing: 0.03em;
 }
 
 .profile-section {
@@ -528,5 +530,9 @@
   
   .section-title {
     font-size: 2rem;
+  }
+  
+  .video-grid {
+    grid-template-columns: 1fr;
   }
 }

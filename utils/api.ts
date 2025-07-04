@@ -22,10 +22,20 @@ const api = axios.create({
 // Add authorization header to requests when token exists
 api.interceptors.request.use(
   (config) => {
+    // 常にトークンを送信する（開発環境でも本番環境でも）
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // デバッグ用ログ
+    console.log('API Request:', {
+      url: config.url,
+      method: config.method,
+      headers: config.headers,
+      hasToken: !!token
+    });
+    
     return config;
   },
   (error) => {

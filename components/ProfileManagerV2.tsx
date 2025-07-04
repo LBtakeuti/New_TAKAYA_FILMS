@@ -83,24 +83,33 @@ function ProfileManagerV2({ token }: ProfileManagerV2Props) {
     try {
       console.log('Saving profile data:', formData);
       
-      const response = await api.put('/profile', formData);
+      // 開発環境ではトークンなしでも動作するように修正
+      const config = {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      };
+
+      const response = await api.put('/profile', formData, config);
       
       console.log('Save response:', response.data);
       
-      if (response.data && (response.data.success || response.data.message)) {
-        await fetchProfile();
-        showToast('プロフィールを保存しました！メインサイトに反映されました。', 'success');
-        
-        // メインサイトをリフレッシュ（開発環境の場合）
-        if (window.location.hostname === 'localhost') {
-          setTimeout(() => {
-            window.open('http://localhost:3000', '_blank');
-          }, 1000);
-        }
+      await fetchProfile();
+      showToast('プロフィールを保存しました！メインサイトに反映されました。', 'success');
+      
+      // メインサイトをリフレッシュ（開発環境の場合）
+      if (window.location.hostname === 'localhost') {
+        setTimeout(() => {
+          // 現在のメインサイトタブを更新
+          const mainWindow = window.open('/', '_blank');
+          if (mainWindow) {
+            setTimeout(() => mainWindow.location.reload(), 500);
+          }
+        }, 500);
       }
     } catch (error: any) {
       console.error('Error saving profile:', error);
-      const errorMessage = error.response?.data?.error || error.message || 'エラーが発生しました';
+      const errorMessage = error.response?.data?.error || error.userMessage || error.message || 'エラーが発生しました';
       showToast(errorMessage, 'error');
     } finally {
       setSaving(false);

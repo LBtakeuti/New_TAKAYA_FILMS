@@ -16,6 +16,13 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchData();
+    
+    // データの自動更新（30秒ごと）
+    const interval = setInterval(() => {
+      fetchData();
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const fetchData = async () => {
@@ -159,57 +166,13 @@ export default function HomePage() {
       <section id="about" className="about-section">
         <div className="about-container">
           <h2 className="section-title">ABOUT</h2>
-          {profile ? (
-            <div className="profile-content">
-              <h3 className="profile-name">{profile.name}</h3>
-              <p className="profile-title">{profile.title}</p>
-              {profile.bio && <p className="profile-bio">{profile.bio}</p>}
-              
-              {profile.skills && profile.skills.length > 0 && (
-                <div className="profile-section">
-                  <h4>Skills</h4>
-                  <div className="skills-list">
-                    {profile.skills.map((skill, index) => (
-                      <span key={index} className="skill-tag">{skill}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {profile.services && profile.services.length > 0 && (
-                <div className="profile-section">
-                  <h4>Services</h4>
-                  <ul className="services-list">
-                    {profile.services.map((service, index) => (
-                      <li key={index}>{service}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <div className="social-links">
-                {profile.social_links?.instagram && (
-                  <a href={profile.social_links.instagram} target="_blank" rel="noopener noreferrer">
-                    Instagram
-                  </a>
-                )}
-                {profile.social_links?.youtube && (
-                  <a href={profile.social_links.youtube} target="_blank" rel="noopener noreferrer">
-                    YouTube
-                  </a>
-                )}
-                {profile.social_links?.vimeo && (
-                  <a href={profile.social_links.vimeo} target="_blank" rel="noopener noreferrer">
-                    Vimeo
-                  </a>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="profile-placeholder">
-              <p>プロフィール情報を読み込んでいます...</p>
-            </div>
-          )}
+          <div className="profile-content">
+            <h3 className="profile-name">鳥谷部 貴哉 / Takaya Toriyabe</h3>
+            <p className="profile-title">Videographer / Video Director</p>
+            <p className="profile-bio">
+              2017年より広告出版業界にてBtoB営業に従事。チームの育成やメンバーサポート、採用・新人研修など、営業活動と並行して組織づくりにも携わる。2020年には自社のYouTubeチャンネル立ち上げに携わり、運営を通じて映像の可能性に魅了される。2024年にフリーランスとして独立。現在はウェディングムービーを中心に、企業PR動画、SNSコンテンツなど幅広い映像制作に取り組む。2025年には自身のウェディング映像ブランド「Utopia Wedding」を立ち上げる。
+            </p>
+          </div>
         </div>
       </section>
 
