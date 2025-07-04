@@ -1,12 +1,4 @@
 {
-  "functions": {
-    "app/api/auth/login/route.ts": {
-      "maxDuration": 10
-    },
-    "app/api/profile/route.ts": {
-      "maxDuration": 10
-    }
-  },
   "headers": [
     {
       "source": "/api/(.*)",
