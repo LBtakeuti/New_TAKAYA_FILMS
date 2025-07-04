@@ -1,0 +1,11 @@
+# キャッシュを無効化
+<IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+</IfModule>
+
+# Service Workerを無効化
+<IfModule mod_headers.c>
+    Header set Service-Worker-Allowed "none"
+</IfModule>

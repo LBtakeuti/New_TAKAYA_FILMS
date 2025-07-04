@@ -42,10 +42,6 @@ function VideoManager({ token }: VideoManagerProps) {
     video_file: null as File | null
   });
 
-  useEffect(() => {
-    fetchVideos();
-  }, [fetchVideos]);
-
   const fetchVideos = useCallback(async () => {
     try {
       const response = await api.get('/videos?t=' + Date.now());
@@ -55,6 +51,10 @@ function VideoManager({ token }: VideoManagerProps) {
       setVideos([]);
     }
   }, []);
+
+  useEffect(() => {
+    fetchVideos();
+  }, [fetchVideos]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
