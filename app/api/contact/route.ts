@@ -149,7 +149,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ 
       success: true, 
-      message: 'お問い合わせを送信しました。ご連絡ありがとうございます。' 
+      message: 'お問い合わせを送信しました。ご連絡ありがとうございます。',
+      debug: {
+        webhookUrl: slackWebhookUrl,
+        isDevelopmentMode,
+        slackResult: result
+      }
     });
 
   } catch (error) {
