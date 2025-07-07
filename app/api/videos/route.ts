@@ -12,10 +12,17 @@ if (!global.videoStore) {
   };
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // レスポンスヘッダーにキャッシュ制御を追加
+    const headers = new Headers();
+    headers.set('Cache-Control', 'public, max-age=60'); // 1分間キャッシュ
+    
     const publishedVideos = global.videoStore.videos.filter((video: any) => video.is_published);
-    return NextResponse.json(publishedVideos.sort((a: any, b: any) => a.sort_order - b.sort_order || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
+    return NextResponse.json(
+      publishedVideos.sort((a: any, b: any) => a.sort_order - b.sort_order || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+      { headers }
+    );
   } catch (error) {
     console.error('Error fetching videos:', error);
     return NextResponse.json({ error: 'Failed to fetch videos' }, { status: 500 });

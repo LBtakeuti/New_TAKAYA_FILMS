@@ -28,13 +28,14 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // デバッグ用ログ
-    console.log('API Request:', {
-      url: config.url,
-      method: config.method,
-      headers: config.headers,
-      hasToken: !!token
-    });
+    // デバッグ用ログ（開発環境のみ、GETリクエストは除外）
+    if (config.method !== 'get' && process.env.NODE_ENV === 'development') {
+      console.log('API Request:', {
+        url: config.url,
+        method: config.method,
+        hasToken: !!token
+      });
+    }
     
     return config;
   },
@@ -53,8 +54,8 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      // Only redirect if we're not already on the login page
-      if (!window.location.pathname.includes('/admin/login')) {
+      // Only redirect if we're not already on the login page AND this is an admin route
+      if (!window.location.pathname.includes('/admin/login') && window.location.pathname.includes('/admin')) {
         window.location.href = '/admin/login';
       }
     }

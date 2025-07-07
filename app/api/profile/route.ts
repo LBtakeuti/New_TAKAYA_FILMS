@@ -26,6 +26,10 @@ const getSupabase = () => {
 // GET: プロフィール取得（公開）
 export async function GET(request: NextRequest) {
   try {
+    // レスポンスヘッダーにキャッシュ制御を追加
+    const headers = new Headers();
+    headers.set('Cache-Control', 'public, max-age=60'); // 1分間キャッシュ
+    
     const supabase = getSupabase();
     
     if (!supabase) {
@@ -52,9 +56,9 @@ export async function GET(request: NextRequest) {
           skills: [],
           services: []
         };
-        return NextResponse.json(emptyProfile);
+        return NextResponse.json(emptyProfile, { headers });
       }
-      return NextResponse.json(profile);
+      return NextResponse.json(profile, { headers });
     }
     
     const { data, error } = await supabase
@@ -72,7 +76,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
     
-    return NextResponse.json(data);
+    return NextResponse.json(data, { headers });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
@@ -127,6 +131,7 @@ export async function PUT(request: NextRequest) {
     
     const body = await request.json();
     console.log('Profile update request received:', body);
+    console.log('Request headers:', Object.fromEntries(request.headers.entries()));
     
     const {
       name,
@@ -264,8 +269,11 @@ export async function PUT(request: NextRequest) {
     }
   } catch (err: any) {
     console.error('Profile update error:', err);
+    console.error('Error details:', err instanceof Error ? err.message : String(err));
+    console.error('Stack trace:', err instanceof Error ? err.stack : 'N/A');
     return NextResponse.json({ 
-      error: err.message || 'Internal server error' 
+      error: err.message || 'Internal server error',
+      debug: process.env.NODE_ENV === 'development' ? String(err) : undefined
     }, { status: 500 });
   }
 }

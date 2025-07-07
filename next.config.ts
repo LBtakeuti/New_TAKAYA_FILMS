@@ -18,7 +18,18 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        // APIエンドポイントはキャッシュを許可
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=60', // 1分間キャッシュ
+          },
+        ],
+      },
+      {
+        // その他のページはキャッシュを無効化
+        source: '/:path((?!api).*)*',
         headers: [
           {
             key: 'Cache-Control',

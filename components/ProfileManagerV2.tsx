@@ -84,15 +84,24 @@ function ProfileManagerV2({ token }: ProfileManagerV2Props) {
       console.log('Saving profile data:', formData);
       
       // 開発環境ではトークンなしでも動作するように修正
-      const config = {
+      console.log('Sending profile data:', formData);
+      
+      // 直接fetchを使用してAuthorizationヘッダーを回避
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
-        }
-      };
-
-      const response = await api.put('/profile', formData, config);
+        },
+        body: JSON.stringify(formData)
+      });
       
-      console.log('Save response:', response.data);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Profile update failed');
+      }
+      
+      console.log('Save response:', data);
       
       await fetchProfile();
       showToast('プロフィールを保存しました！メインサイトに反映されました。', 'success');
@@ -109,7 +118,7 @@ function ProfileManagerV2({ token }: ProfileManagerV2Props) {
       }
     } catch (error: any) {
       console.error('Error saving profile:', error);
-      const errorMessage = error.response?.data?.error || error.userMessage || error.message || 'エラーが発生しました';
+      const errorMessage = error.message || 'エラーが発生しました';
       showToast(errorMessage, 'error');
     } finally {
       setSaving(false);

@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Slack通知送信関数（開発モード対応）
 const sendSlackMessage = async (formData: { name: string; email: string; subject: string; message: string }): Promise<{ success: boolean; simulated: boolean }> => {
-  const slackWebhookUrl = 'https://hooks.slack.com/services/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';
+  const slackWebhookUrl = 'https://hooks.slack.com/services/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';
   
   // 開発モードまたはWebhook URL無効時はコンソールログに出力
-  const isDevelopmentMode = true; // Webhook URLが無効なため開発モード継続
+  const isDevelopmentMode = false; // 新しいWebhook URLで本格運用開始
   
   if (isDevelopmentMode) {
     console.log('=== 📧 TAKAYA FILMS - 新規お問い合わせ ===');
@@ -79,6 +79,9 @@ const sendSlackMessage = async (formData: { name: string; email: string; subject
   };
 
   try {
+    console.log('Slack送信開始 - Webhook URL:', slackWebhookUrl);
+    console.log('送信メッセージ:', JSON.stringify(slackMessage, null, 2));
+    
     const response = await fetch(slackWebhookUrl, {
       method: 'POST',
       headers: {
@@ -87,22 +90,35 @@ const sendSlackMessage = async (formData: { name: string; email: string; subject
       body: JSON.stringify(slackMessage)
     });
 
+    console.log('Slack API レスポンス:', {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok
+    });
+
     if (!response.ok) {
       const responseText = await response.text();
+      console.error('Slack API エラー内容:', responseText);
       throw new Error(`Slack API returned status ${response.status}: ${responseText}`);
     }
 
+    const responseText = await response.text();
+    console.log('Slack送信成功:', responseText);
+    
     return { success: true, simulated: false };
   } catch (error) {
     console.error('Slack送信エラー:', error);
     console.error('エラー詳細:', error instanceof Error ? error.message : String(error));
-    // 開発モードにフォールバック
-    console.log('=== Slackエラー - コンソールログに出力 ===');
+    // Slackエラー時はコンソールログに出力（フォールバック）
+    console.log('=== 🚨 Slackエラー - コンソールログに出力 ===');
     console.log(`👤 お名前: ${formData.name}`);
     console.log(`📧 メールアドレス: ${formData.email}`);
     console.log(`📝 件名: ${formData.subject}`);
+    console.log(`⏰ 受信日時: ${new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })}`);
     console.log(`💬 メッセージ: ${formData.message}`);
-    console.log('=======================================');
+    console.log('==========================================');
+    
+    // エラーでもユーザーには成功を返す（フォールバック運用）
     return { success: true, simulated: true };
   }
 };

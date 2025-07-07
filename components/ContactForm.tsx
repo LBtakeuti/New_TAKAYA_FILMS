@@ -36,12 +36,20 @@ const ContactForm: React.FC = () => {
     setSubmitStatus({ type: null, message: '' });
 
     try {
+      console.log('ContactForm: 送信データ', formData);
+      
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
+      });
+      
+      console.log('ContactForm: APIレスポンス', {
+        status: response.status,
+        ok: response.ok,
+        statusText: response.statusText
       });
 
       const data = await response.json();

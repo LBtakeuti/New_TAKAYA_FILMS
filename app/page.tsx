@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import api from '@/utils/api';
 import ContactForm from '@/components/ContactForm';
 import VideoPlayer from '@/components/VideoPlayer';
@@ -13,24 +13,50 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+  const isFetchingRef = useRef(false);
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    fetchData();
+    // 初回のみデータを取得
+    if (!hasFetchedRef.current) {
+      hasFetchedRef.current = true;
+      fetchData();
+    }
     
-    // データの自動更新（30秒ごと）
+    // データの自動更新（5分ごと）- 頻度を下げる
     const interval = setInterval(() => {
       fetchData();
-    }, 30000);
+    }, 300000); // 5分 = 300,000ms
     
     return () => clearInterval(interval);
   }, []);
 
   const fetchData = async () => {
+    // 既に読み込み中の場合はスキップ
+    if (isFetchingRef.current) {
+      console.log('Skipping fetch - already in progress');
+      return;
+    }
+    
+    isFetchingRef.current = true;
+    console.log('Starting data fetch...');
+    
     try {
       const [videosResponse, profileResponse] = await Promise.all([
-        api.get('/videos').catch(() => ({ data: [] })),
-        api.get('/profile').catch(() => ({ data: null }))
+        api.get('/videos').catch((error) => {
+          console.error('Videos fetch error:', error);
+          return { data: [] };
+        }),
+        api.get('/profile').catch((error) => {
+          console.error('Profile fetch error:', error);
+          return { data: null };
+        })
       ]);
+      
+      console.log('Data fetched successfully:', {
+        videos: videosResponse.data?.length || 0,
+        hasProfile: !!profileResponse.data
+      });
       
       setVideos(videosResponse.data || []);
       setProfile(profileResponse.data);
@@ -38,6 +64,7 @@ export default function HomePage() {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   };
 
