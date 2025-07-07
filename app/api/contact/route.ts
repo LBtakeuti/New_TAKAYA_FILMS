@@ -18,64 +18,9 @@ const sendSlackMessage = async (formData: { name: string; email: string; subject
     return { success: true, simulated: true };
   }
 
-  // Slack Block Kit形式でリッチなメッセージを作成
+  // シンプルなSlackメッセージを作成
   const slackMessage = {
-    text: "新しいお問い合わせが届きました！",
-    blocks: [
-      {
-        type: "header",
-        text: {
-          type: "plain_text",
-          text: "🎬 TAKAYA FILMS - 新規お問い合わせ",
-          emoji: true
-        }
-      },
-      {
-        type: "section",
-        fields: [
-          {
-            type: "mrkdwn",
-            text: `*👤 お名前:*\n${formData.name}`
-          },
-          {
-            type: "mrkdwn",
-            text: `*📧 メールアドレス:*\n${formData.email}`
-          }
-        ]
-      },
-      {
-        type: "section",
-        fields: [
-          {
-            type: "mrkdwn",
-            text: `*📝 件名:*\n${formData.subject}`
-          },
-          {
-            type: "mrkdwn",
-            text: `*⏰ 受信日時:*\n${new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })}`
-          }
-        ]
-      },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `*💬 メッセージ:*\n\`\`\`${formData.message}\`\`\``
-        }
-      },
-      {
-        type: "divider"
-      },
-      {
-        type: "context",
-        elements: [
-          {
-            type: "mrkdwn",
-            text: "TAKAYA FILMS ウェブサイトのお問い合わせフォームより送信"
-          }
-        ]
-      }
-    ]
+    text: `🎬 TAKAYA FILMS - 新規お問い合わせ\n\n👤 お名前: ${formData.name}\n📧 メールアドレス: ${formData.email}\n📝 件名: ${formData.subject}\n⏰ 受信日時: ${new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })}\n\n💬 メッセージ:\n${formData.message}\n\n---\nTAKAYA FILMS ウェブサイトのお問い合わせフォームより送信`
   };
 
   try {
