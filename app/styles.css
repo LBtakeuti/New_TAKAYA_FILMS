@@ -367,23 +367,40 @@
 }
 
 .profile-instagram {
-  font-size: 15px;
-  color: #333;
   max-width: 700px;
-  margin: 0 auto 40px;
+  margin: 20px auto 40px;
   text-align: center;
-  letter-spacing: 0.03em;
 }
 
-.profile-instagram a {
+.instagram-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: #666;
   text-decoration: none;
-  transition: color 0.3s ease;
+  font-size: 15px;
+  letter-spacing: 0.03em;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: 25px;
 }
 
-.profile-instagram a:hover {
-  color: #000;
-  text-decoration: underline;
+.instagram-link:hover {
+  color: #333;
+  border-color: #ddd;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.instagram-icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  transition: transform 0.3s ease;
+}
+
+.instagram-link:hover .instagram-icon {
+  transform: scale(1.1);
 }
 
 .profile-section {
