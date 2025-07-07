@@ -199,6 +199,15 @@ export default function HomePage() {
             <p className="profile-bio">
               2017年より広告出版業界にてBtoB営業に従事。チームの育成やメンバーサポート、採用・新人研修など、営業活動と並行して組織づくりにも携わる。2020年には自社のYouTubeチャンネル立ち上げに携わり、運営を通じて映像の可能性に魅了される。2024年にフリーランスとして独立。現在はウェディングムービーを中心に、企業PR動画、SNSコンテンツなど幅広い映像制作に取り組む。2025年には自身のウェディング映像ブランド「Utopia Wedding」を立ち上げる。
             </p>
+            <p className="profile-instagram">
+              <a 
+                href="https://www.instagram.com/toriyabe_takaya?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                Instagram: @toriyabe_takaya
+              </a>
+            </p>
           </div>
         </div>
       </section>

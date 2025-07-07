@@ -361,9 +361,29 @@
   line-height: 2;
   color: #333;
   max-width: 700px;
-  margin: 30px auto 40px;
+  margin: 30px auto 20px;
   text-align: justify;
   letter-spacing: 0.03em;
+}
+
+.profile-instagram {
+  font-size: 15px;
+  color: #333;
+  max-width: 700px;
+  margin: 0 auto 40px;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+.profile-instagram a {
+  color: #666;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.profile-instagram a:hover {
+  color: #000;
+  text-decoration: underline;
 }
 
 .profile-section {
