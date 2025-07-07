@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Slack通知送信関数（開発モード対応）
 const sendSlackMessage = async (formData: { name: string; email: string; subject: string; message: string }): Promise<{ success: boolean; simulated: boolean }> => {
-  const slackWebhookUrl = 'https://hooks.slack.com/services/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';
+  const slackWebhookUrl = 'https://hooks.slack.com/services/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';
   
   // 開発モードまたはWebhook URL無効時はコンソールログに出力
-  const isDevelopmentMode = true; // Webhook URLが無効のため開発モードに戻す
+  const isDevelopmentMode = false; // 本番モードに設定
   
   if (isDevelopmentMode) {
     console.log('=== 📧 TAKAYA FILMS - 新規お問い合わせ ===');
