@@ -85,6 +85,24 @@ export default function VideoManager({ token }: VideoManagerProps) {
       if (!response.ok) {
         const errorMessage = responseData.error || 'アップロードに失敗しました';
         const errorDetails = responseData.details ? `\n詳細: ${responseData.details}` : '';
+        
+        // Supabase未設定の場合の特別な処理
+        if (response.status === 503 && responseData.missingVariables) {
+          const setupMessage = `
+${errorMessage}
+
+必要な環境変数:
+${responseData.missingVariables.join('\n')}
+
+設定手順:
+${responseData.instructions ? responseData.instructions.join('\n') : ''}
+
+${responseData.alternativeOption || ''}
+          `.trim();
+          
+          throw new Error(setupMessage);
+        }
+        
         throw new Error(errorMessage + errorDetails);
       }
       
