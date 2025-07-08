@@ -1,5 +1,27 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## 環境設定
+
+### Supabase設定（動画アップロード機能を使用する場合）
+
+1. [Supabase](https://supabase.com)でプロジェクトを作成
+2. プロジェクトの設定からAPI URLとAnon Keyを取得
+3. `.env.local`ファイルを作成し、環境変数を設定：
+
+```bash
+cp .env.local.example .env.local
+# .env.localファイルを編集して、実際の値を設定
+```
+
+4. Supabaseダッシュボードでストレージバケットを作成：
+   - `videos` - 動画ファイル用（公開バケット）
+   - `thumbnails` - サムネイル用（公開バケット）
+
+### 注意事項
+
+- Supabase設定なしでも基本機能は動作しますが、動画ファイルアップロードは利用できません
+- YouTube URLでの動画投稿は常に利用可能です
+
 ## Getting Started
 
 First, run the development server:

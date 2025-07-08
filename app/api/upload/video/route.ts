@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { supabase, isSupabaseAvailable, VIDEO_BUCKET, THUMBNAIL_BUCKET } from '@/lib/supabase-client';
 
 // Next.js 13+の設定
 export const runtime = 'nodejs';
@@ -14,22 +13,20 @@ const SUPPORTED_VIDEO_TYPES = [
   'video/ogg'
 ];
 
-// 最大ファイルサイズ（100MB - テスト用に縮小）
+// 最大ファイルサイズ（100MB）
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
   console.log('=== Video Upload API Started ===');
+  console.log('Supabase available:', isSupabaseAvailable());
   
   try {
-    // Content-Typeの確認
-    const contentType = request.headers.get('content-type') || '';
-    console.log('Content-Type:', contentType);
-    
-    if (!contentType.includes('multipart/form-data')) {
+    // Supabaseが利用できない場合はエラー
+    if (!isSupabaseAvailable()) {
       return NextResponse.json({ 
-        error: '無効なリクエスト形式です',
-        details: 'Content-Type must be multipart/form-data'
-      }, { status: 400 });
+        error: '動画アップロード機能は現在利用できません。Supabase設定を確認してください。',
+        details: 'Supabase環境変数が設定されていません'
+      }, { status: 503 });
     }
 
     // FormDataの解析
@@ -67,38 +64,60 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Buffer取得
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
     // ファイル名の生成
     const timestamp = Date.now();
     const originalName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
     const filename = `${timestamp}_${originalName}`;
 
-    // アップロードディレクトリ
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'videos');
+    // Supabase Storageにアップロード
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    console.log('Uploading to Supabase Storage...');
     
-    // ディレクトリの作成
-    try {
-      await fs.access(uploadDir);
-    } catch {
-      await fs.mkdir(uploadDir, { recursive: true });
-      console.log('Created upload directory:', uploadDir);
+    // バケットの確認・作成
+    const { data: buckets } = await supabase!.storage.listBuckets();
+    const videoBucketExists = buckets?.some(bucket => bucket.name === VIDEO_BUCKET);
+    
+    if (!videoBucketExists) {
+      console.log('Creating video bucket...');
+      const { error: createError } = await supabase!.storage.createBucket(VIDEO_BUCKET, {
+        public: true,
+        allowedMimeTypes: SUPPORTED_VIDEO_TYPES
+      });
+      
+      if (createError && !createError.message.includes('already exists')) {
+        console.error('Bucket creation error:', createError);
+        throw createError;
+      }
     }
 
-    // ファイルの保存
-    const filepath = path.join(uploadDir, filename);
-    await fs.writeFile(filepath, buffer);
-    console.log('File saved successfully:', filepath);
+    // 動画ファイルのアップロード
+    const { data: uploadData, error: uploadError } = await supabase!.storage
+      .from(VIDEO_BUCKET)
+      .upload(filename, buffer, {
+        contentType: file.type,
+        cacheControl: '3600',
+        upsert: false
+      });
 
-    // サムネイルディレクトリの作成
-    const thumbnailDir = path.join(process.cwd(), 'public', 'uploads', 'thumbnails');
-    try {
-      await fs.access(thumbnailDir);
-    } catch {
-      await fs.mkdir(thumbnailDir, { recursive: true });
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      throw uploadError;
     }
+
+    console.log('Upload successful:', uploadData);
+
+    // 公開URLの取得
+    const { data: urlData } = supabase!.storage
+      .from(VIDEO_BUCKET)
+      .getPublicUrl(filename);
+
+    const videoUrl = urlData.publicUrl;
+
+    // サムネイル用のプレースホルダーURL
+    // 実際のサムネイル生成はクライアント側で行うか、別途サービスを使用
+    const thumbnailUrl = null;
 
     // レスポンス
     const response = {
@@ -109,8 +128,8 @@ export async function POST(request: NextRequest) {
         originalName: file.name,
         size: file.size,
         type: file.type,
-        path: `/uploads/videos/${filename}`,
-        thumbnailPath: `/uploads/thumbnails/${timestamp}_thumbnail.jpg`,
+        path: videoUrl,
+        thumbnailPath: thumbnailUrl,
         uploadedAt: new Date().toISOString()
       }
     };
