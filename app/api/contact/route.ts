@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Slack通知送信関数（開発モード対応）
 const sendSlackMessage = async (formData: { name: string; email: string; subject: string; message: string }): Promise<{ success: boolean; simulated: boolean }> => {
-  const slackWebhookUrl = 'https://hooks.slack.com/services/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';
+  const slackWebhookUrl = 'https://hooks.slack.com/services/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';
   
   // 開発モードまたはWebhook URL無効時はコンソールログに出力
   const isDevelopmentMode = false; // 本番モードに設定
