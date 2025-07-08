@@ -64,6 +64,13 @@ export default function VideoManager({ token }: VideoManagerProps) {
     setUploadProgress(0);
     
     try {
+      console.log('Starting file upload:', {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        sizeInMB: (file.size / (1024 * 1024)).toFixed(2) + 'MB'
+      });
+      
       const formData = new FormData();
       formData.append('video', file);
       
@@ -72,18 +79,23 @@ export default function VideoManager({ token }: VideoManagerProps) {
         body: formData,
       });
       
+      const responseData = await response.json();
+      console.log('Upload response:', responseData);
+      
       if (!response.ok) {
-        throw new Error('アップロードに失敗しました');
+        const errorMessage = responseData.error || 'アップロードに失敗しました';
+        const errorDetails = responseData.details ? `\n詳細: ${responseData.details}` : '';
+        throw new Error(errorMessage + errorDetails);
       }
       
-      const result = await response.json();
-      setUploadedVideoData(result.data);
+      setUploadedVideoData(responseData.data);
       setUploadProgress(100);
       
-      return result.data;
+      return responseData.data;
     } catch (error) {
       console.error('Upload error:', error);
-      alert('ファイルのアップロードに失敗しました');
+      const errorMessage = error instanceof Error ? error.message : 'ファイルのアップロードに失敗しました';
+      alert(errorMessage);
       return null;
     } finally {
       setUploading(false);

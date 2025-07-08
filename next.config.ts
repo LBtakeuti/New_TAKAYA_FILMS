@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '500mb',
+    },
+  },
   // キャッシュを無効化してビルドごとに新しいIDを生成
   generateBuildId: async () => {
     return 'build-' + Date.now()
