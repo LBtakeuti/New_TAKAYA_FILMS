@@ -23,7 +23,13 @@ export default function VideoManager({ token }: VideoManagerProps) {
     status: 'published',
     featured: false,
     sort_order: 0,
+    video_type: 'youtube' as 'youtube' | 'file',
   });
+
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadedVideoData, setUploadedVideoData] = useState<any>(null);
 
   useEffect(() => {
     fetchVideos();
@@ -53,21 +59,72 @@ export default function VideoManager({ token }: VideoManagerProps) {
     return null;
   };
 
+  const handleFileUpload = async (file: File) => {
+    setUploading(true);
+    setUploadProgress(0);
+    
+    try {
+      const formData = new FormData();
+      formData.append('video', file);
+      
+      const response = await fetch('/api/upload/video', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('アップロードに失敗しました');
+      }
+      
+      const result = await response.json();
+      setUploadedVideoData(result.data);
+      setUploadProgress(100);
+      
+      return result.data;
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('ファイルのアップロードに失敗しました');
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const videoData = {
+      let videoData: any = {
         title: formData.title,
         description: formData.description,
-        youtube_url: formData.youtube_url,
         category: formData.category,
         client: formData.client,
         status: formData.status,
         featured: formData.featured,
         sort_order: formData.sort_order,
+        video_type: formData.video_type,
       };
+      
+      if (formData.video_type === 'youtube') {
+        videoData.youtube_url = formData.youtube_url;
+      } else if (formData.video_type === 'file') {
+        if (uploadedFile && !uploadedVideoData) {
+          const uploadResult = await handleFileUpload(uploadedFile);
+          if (!uploadResult) {
+            setLoading(false);
+            return;
+          }
+          setUploadedVideoData(uploadResult);
+        }
+        
+        if (uploadedVideoData) {
+          videoData.video_file_path = uploadedVideoData.path;
+          videoData.thumbnail_file_path = uploadedVideoData.thumbnailPath;
+          videoData.file_size = uploadedVideoData.size;
+          videoData.mime_type = uploadedVideoData.type;
+        }
+      }
 
       if (editingVideo) {
         await api.put(`/videos/${editingVideo.id}`, videoData);
@@ -100,7 +157,10 @@ export default function VideoManager({ token }: VideoManagerProps) {
       status: video.status,
       featured: video.featured,
       sort_order: video.sort_order,
+      video_type: video.video_type || 'youtube',
     });
+    setUploadedFile(null);
+    setUploadedVideoData(null);
     setIsModalOpen(true);
   };
 
@@ -126,8 +186,12 @@ export default function VideoManager({ token }: VideoManagerProps) {
       status: 'published',
       featured: false,
       sort_order: 0,
+      video_type: 'youtube',
     });
     setEditingVideo(null);
+    setUploadedFile(null);
+    setUploadedVideoData(null);
+    setUploadProgress(0);
   };
 
   return (
@@ -161,9 +225,15 @@ export default function VideoManager({ token }: VideoManagerProps) {
             }}>
               {/* サムネイル */}
               <div style={{ height: '200px', background: '#f5f5f5', position: 'relative' }}>
-                {getYouTubeThumbnail(video.video_url) ? (
+                {video.video_type === 'youtube' && getYouTubeThumbnail(video.video_url) ? (
                   <img 
                     src={getYouTubeThumbnail(video.video_url)!}
+                    alt={video.title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : video.video_type === 'file' && video.thumbnail_file_path ? (
+                  <img 
+                    src={video.thumbnail_file_path}
                     alt={video.title}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
@@ -175,7 +245,21 @@ export default function VideoManager({ token }: VideoManagerProps) {
                     height: '100%', 
                     color: '#666' 
                   }}>
-                    📷 Photography
+                    {video.video_type === 'file' ? '🎬' : '📷'} {video.category}
+                  </div>
+                )}
+                {video.video_type === 'file' && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '8px',
+                    right: '8px',
+                    background: 'rgba(0,0,0,0.7)',
+                    color: 'white',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '12px'
+                  }}>
+                    📁 ファイル
                   </div>
                 )}
               </div>
@@ -250,25 +334,105 @@ export default function VideoManager({ token }: VideoManagerProps) {
               </div>
 
               <div className="profile-form-group">
-                <label className="profile-form-label">YouTube URL</label>
-                <input
-                  type="url"
-                  value={formData.youtube_url}
-                  onChange={(e) => setFormData({...formData, youtube_url: e.target.value})}
-                  placeholder="https://www.youtube.com/watch?v=..."
-                  className="profile-form-input"
-                />
-                {/* プレビュー */}
-                {formData.youtube_url && getYouTubeThumbnail(formData.youtube_url) && (
-                  <div style={{ marginTop: '10px' }}>
-                    <img 
-                      src={getYouTubeThumbnail(formData.youtube_url)!}
-                      alt="プレビュー"
-                      style={{ width: '100%', maxWidth: '200px', borderRadius: '4px' }}
+                <label className="profile-form-label">動画の種類 *</label>
+                <div style={{ display: 'flex', gap: '20px', marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="radio"
+                      value="youtube"
+                      checked={formData.video_type === 'youtube'}
+                      onChange={(e) => setFormData({...formData, video_type: e.target.value as 'youtube' | 'file'})}
                     />
-                  </div>
-                )}
+                    <span>YouTube URL</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="radio"
+                      value="file"
+                      checked={formData.video_type === 'file'}
+                      onChange={(e) => setFormData({...formData, video_type: e.target.value as 'youtube' | 'file'})}
+                    />
+                    <span>動画ファイル</span>
+                  </label>
+                </div>
               </div>
+
+              {formData.video_type === 'youtube' && (
+                <div className="profile-form-group">
+                  <label className="profile-form-label">YouTube URL</label>
+                  <input
+                    type="url"
+                    value={formData.youtube_url}
+                    onChange={(e) => setFormData({...formData, youtube_url: e.target.value})}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="profile-form-input"
+                    required
+                  />
+                  {/* プレビュー */}
+                  {formData.youtube_url && getYouTubeThumbnail(formData.youtube_url) && (
+                    <div style={{ marginTop: '10px' }}>
+                      <img 
+                        src={getYouTubeThumbnail(formData.youtube_url)!}
+                        alt="プレビュー"
+                        style={{ width: '100%', maxWidth: '200px', borderRadius: '4px' }}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {formData.video_type === 'file' && (
+                <div className="profile-form-group">
+                  <label className="profile-form-label">動画ファイル *</label>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setUploadedFile(file);
+                        setUploadedVideoData(null);
+                      }
+                    }}
+                    className="profile-form-input"
+                    required={!editingVideo}
+                  />
+                  <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+                    対応形式: MP4, MOV, AVI, WebM, OGG（最大500MB）
+                  </div>
+                  
+                  {uploading && (
+                    <div style={{ marginTop: '10px' }}>
+                      <div style={{ background: '#f0f0f0', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ 
+                          width: `${uploadProgress}%`, 
+                          height: '20px', 
+                          background: '#007bff',
+                          transition: 'width 0.3s ease'
+                        }}></div>
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+                        アップロード中... {uploadProgress}%
+                      </div>
+                    </div>
+                  )}
+                  
+                  {uploadedVideoData && (
+                    <div style={{ marginTop: '10px', padding: '10px', background: '#e8f5e8', borderRadius: '4px' }}>
+                      <div style={{ fontSize: '12px', color: '#059862' }}>
+                        ✅ アップロード完了: {uploadedVideoData.originalName}
+                      </div>
+                      {uploadedVideoData.thumbnailPath && (
+                        <img 
+                          src={uploadedVideoData.thumbnailPath}
+                          alt="サムネイル"
+                          style={{ width: '100%', maxWidth: '150px', borderRadius: '4px', marginTop: '5px' }}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="profile-form-group">
                 <label className="profile-form-label">説明</label>

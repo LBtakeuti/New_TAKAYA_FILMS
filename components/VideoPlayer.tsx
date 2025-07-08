@@ -4,12 +4,14 @@ import React, { useEffect } from 'react';
 
 interface VideoPlayerProps {
   videoUrl: string;
+  videoFilePath?: string;
+  videoType?: 'youtube' | 'file';
   isOpen: boolean;
   onClose: () => void;
   title?: string;
 }
 
-export default function VideoPlayer({ videoUrl, isOpen, onClose, title }: VideoPlayerProps) {
+export default function VideoPlayer({ videoUrl, videoFilePath, videoType = 'youtube', isOpen, onClose, title }: VideoPlayerProps) {
   // YouTube動画IDを抽出
   const getYouTubeId = (url: string): string | null => {
     const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
@@ -38,7 +40,10 @@ export default function VideoPlayer({ videoUrl, isOpen, onClose, title }: VideoP
   if (!isOpen) return null;
 
   const videoId = getYouTubeId(videoUrl);
-  if (!videoId) return null;
+  const isYouTube = videoType === 'youtube' && videoId;
+  const isFile = videoType === 'file' && videoFilePath;
+
+  if (!isYouTube && !isFile) return null;
 
   return (
     <div 
@@ -62,13 +67,38 @@ export default function VideoPlayer({ videoUrl, isOpen, onClose, title }: VideoP
         )}
         
         <div className="video-player-wrapper">
-          <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
-            title={title || 'Video Player'}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="video-player-iframe"
-          />
+          {isYouTube && (
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
+              title={title || 'Video Player'}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="video-player-iframe"
+              style={{
+                width: '100%',
+                height: '100%',
+                border: 'none'
+              }}
+            />
+          )}
+          
+          {isFile && (
+            <video
+              src={videoFilePath}
+              title={title || 'Video Player'}
+              controls
+              autoPlay
+              className="video-player-video"
+              style={{
+                width: '100%',
+                height: '100%',
+                maxHeight: '80vh',
+                objectFit: 'contain'
+              }}
+            >
+              お使いのブラウザは動画再生に対応していません。
+            </video>
+          )}
         </div>
       </div>
     </div>

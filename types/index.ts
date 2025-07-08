@@ -18,7 +18,13 @@ export interface Video {
   title: string;
   description: string;
   video_url: string;
+  video_file_path?: string;
   thumbnail_url?: string;
+  thumbnail_file_path?: string;
+  video_type: 'youtube' | 'file';
+  file_size?: number;
+  duration?: number;
+  mime_type?: string;
   category: string;
   client?: string;
   project_date?: string;

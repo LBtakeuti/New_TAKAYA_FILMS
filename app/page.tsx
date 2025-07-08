@@ -73,11 +73,16 @@ export default function HomePage() {
     ? videos 
     : videos.filter(v => v.category === selectedCategory);
 
-  // YouTube URLからサムネイルを取得
-  const getYouTubeThumbnail = (url: string): string => {
-    const videoId = extractYouTubeId(url);
-    if (videoId) {
-      return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  // サムネイルを取得
+  const getThumbnail = (video: Video): string => {
+    if (video.video_type === 'file' && video.thumbnail_file_path) {
+      return video.thumbnail_file_path;
+    }
+    if (video.video_type === 'youtube' && video.video_url) {
+      const videoId = extractYouTubeId(video.video_url);
+      if (videoId) {
+        return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+      }
     }
     return '/placeholder-video.jpg';
   };
@@ -155,15 +160,22 @@ export default function HomePage() {
                 onClick={() => openVideoPlayer(video)}
               >
                 <div className="video-thumbnail">
-                  {video.video_url && (
-                    <img 
-                      src={getYouTubeThumbnail(video.video_url)} 
-                      alt={video.title}
-                      loading="lazy"
-                      onError={(e) => {
+                  <img 
+                    src={getThumbnail(video)} 
+                    alt={video.title}
+                    loading="lazy"
+                    onError={(e) => {
+                      if (video.video_type === 'youtube' && video.video_url) {
                         e.currentTarget.src = `https://img.youtube.com/vi/${extractYouTubeId(video.video_url)}/hqdefault.jpg`;
-                      }}
-                    />
+                      } else {
+                        e.currentTarget.src = '/placeholder-video.jpg';
+                      }
+                    }}
+                  />
+                  {video.video_type === 'file' && (
+                    <div className="video-type-badge">
+                      📁 ファイル
+                    </div>
                   )}
                   <div className="play-overlay">
                     <div className="play-button">
@@ -233,6 +245,8 @@ export default function HomePage() {
       {selectedVideo && (
         <VideoPlayer
           videoUrl={selectedVideo.video_url}
+          videoFilePath={selectedVideo.video_file_path}
+          videoType={selectedVideo.video_type}
           isOpen={isPlayerOpen}
           onClose={closeVideoPlayer}
           title={selectedVideo.title}
