@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/utils/logger';
 import { createClient } from '@supabase/supabase-js';
 const mockStorage = require('@/lib/mock-storage');
 import { verifyToken } from '@/app/api/middleware/auth';
@@ -12,13 +13,13 @@ const getSupabase = () => {
   if (!supabaseUrl || !supabaseKey || 
       supabaseUrl === 'your_supabase_url_here' || 
       supabaseKey === 'your_supabase_anon_key_here') {
-    console.warn('Supabase environment variables are not properly configured. Using mock storage.');
+    logger.warn('Supabase environment variables are not properly configured. Using mock storage.');
     return null;
   }
   try {
     return createClient(supabaseUrl, supabaseKey);
   } catch (error) {
-    console.error('Failed to create Supabase client:', error);
+    logger.error('Failed to create Supabase client:', error);
     return null;
   }
 };
@@ -94,7 +95,7 @@ export async function PUT(request: NextRequest) {
       const origin = request.headers.get('origin');
       const referer = request.headers.get('referer');
       
-      console.log('Request headers:', {
+      logger.log('Request headers:', {
         host,
         origin,
         referer,
@@ -113,7 +114,7 @@ export async function PUT(request: NextRequest) {
         const token = authHeader?.split(' ')[1];
         
         if (!token) {
-          console.log('No token provided in production environment');
+          logger.log('No token provided in production environment');
           return NextResponse.json({ error: 'Access denied. No token provided.' }, { status: 401 });
         }
         
@@ -121,17 +122,17 @@ export async function PUT(request: NextRequest) {
         try {
           verifyToken(token);
         } catch (error) {
-          console.log('Token verification failed:', error);
+          logger.log('Token verification failed:', error);
           return NextResponse.json({ error: 'Invalid token' }, { status: 403 });
         }
       }
     }
     
-    console.log('Auth check skipped - proceeding with profile update');
+    logger.log('Auth check skipped - proceeding with profile update');
     
     const body = await request.json();
-    console.log('Profile update request received:', body);
-    console.log('Request headers:', Object.fromEntries(request.headers.entries()));
+    logger.log('Profile update request received:', body);
+    logger.log('Request headers:', Object.fromEntries(request.headers.entries()));
     
     const {
       name,
@@ -216,7 +217,7 @@ export async function PUT(request: NextRequest) {
         updated_at: new Date().toISOString()
       };
 
-      console.log('Updating profile with data:', updateData);
+      logger.log('Updating profile with data:', updateData);
 
       const { data, error } = await supabase
         .from('profile')
@@ -225,11 +226,11 @@ export async function PUT(request: NextRequest) {
         .select();
 
       if (error) {
-        console.error('Supabase update error:', error);
+        logger.error('Supabase update error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
       
-      console.log('Profile updated successfully:', data);
+      logger.log('Profile updated successfully:', data);
       return NextResponse.json({ 
         message: 'Profile updated successfully', 
         data: data[0] 
@@ -256,11 +257,11 @@ export async function PUT(request: NextRequest) {
         .select();
 
       if (error) {
-        console.error('Supabase insert error:', error);
+        logger.error('Supabase insert error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
       
-      console.log('Profile created successfully:', data);
+      logger.log('Profile created successfully:', data);
       return NextResponse.json({
         id: data[0].id,
         message: 'Profile created successfully',
@@ -268,9 +269,9 @@ export async function PUT(request: NextRequest) {
       }, { status: 201 });
     }
   } catch (err: any) {
-    console.error('Profile update error:', err);
-    console.error('Error details:', err instanceof Error ? err.message : String(err));
-    console.error('Stack trace:', err instanceof Error ? err.stack : 'N/A');
+    logger.error('Profile update error:', err);
+    logger.error('Error details:', err instanceof Error ? err.message : String(err));
+    logger.error('Stack trace:', err instanceof Error ? err.stack : 'N/A');
     return NextResponse.json({ 
       error: err.message || 'Internal server error',
       debug: process.env.NODE_ENV === 'development' ? String(err) : undefined

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { logger } from '@/utils/logger';
 
 interface ContactFormData {
   name: string;
@@ -36,7 +37,7 @@ const ContactForm: React.FC = () => {
     setSubmitStatus({ type: null, message: '' });
 
     try {
-      console.log('ContactForm: 送信データ', formData);
+      logger.log('ContactForm: 送信データ', formData);
       
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -46,7 +47,7 @@ const ContactForm: React.FC = () => {
         body: JSON.stringify(formData),
       });
       
-      console.log('ContactForm: APIレスポンス', {
+      logger.log('ContactForm: APIレスポンス', {
         status: response.status,
         ok: response.ok,
         statusText: response.statusText

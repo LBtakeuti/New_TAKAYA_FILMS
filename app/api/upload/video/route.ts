@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/utils/logger';
 import { supabase, isSupabaseAvailable, VIDEO_BUCKET, THUMBNAIL_BUCKET } from '@/lib/supabase-client';
 
 // Next.js 13+の設定
@@ -17,13 +18,13 @@ const SUPPORTED_VIDEO_TYPES = [
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
-  console.log('=== Video Upload API Started ===');
+  logger.log('=== Video Upload API Started ===');
   
   // 環境変数の確認
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
-  console.log('Environment check:', {
+  logger.log('Environment check:', {
     hasUrl: !!supabaseUrl,
     hasKey: !!supabaseKey,
     urlPrefix: supabaseUrl ? supabaseUrl.substring(0, 20) + '...' : 'not set',
@@ -56,13 +57,13 @@ export async function POST(request: NextRequest) {
     const file = formData.get('video') as File | null;
     
     if (!file) {
-      console.error('No file found in form data');
+      logger.error('No file found in form data');
       return NextResponse.json({ 
         error: 'ファイルが選択されていません' 
       }, { status: 400 });
     }
 
-    console.log('File received:', {
+    logger.log('File received:', {
       name: file.name,
       type: file.type,
       size: file.size,
@@ -95,21 +96,21 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    console.log('Uploading to Supabase Storage...');
+    logger.log('Uploading to Supabase Storage...');
     
     // バケットの確認・作成
     try {
       const { data: buckets, error: listError } = await supabase!.storage.listBuckets();
       
       if (listError) {
-        console.error('Bucket list error:', listError);
+        logger.error('Bucket list error:', listError);
         throw new Error(`ストレージバケットの確認に失敗: ${listError.message}`);
       }
       
       const videoBucketExists = buckets?.some(bucket => bucket.name === VIDEO_BUCKET);
       
       if (!videoBucketExists) {
-        console.log('Creating video bucket...');
+        logger.log('Creating video bucket...');
         const { error: createError } = await supabase!.storage.createBucket(VIDEO_BUCKET, {
           public: true,
           allowedMimeTypes: SUPPORTED_VIDEO_TYPES,
@@ -117,12 +118,12 @@ export async function POST(request: NextRequest) {
         });
         
         if (createError && !createError.message.includes('already exists')) {
-          console.error('Bucket creation error:', createError);
+          logger.error('Bucket creation error:', createError);
           throw new Error(`バケット作成エラー: ${createError.message}`);
         }
       }
     } catch (error) {
-      console.error('Storage setup error:', error);
+      logger.error('Storage setup error:', error);
       return NextResponse.json({
         error: 'ストレージの初期化に失敗しました',
         details: error instanceof Error ? error.message : 'Unknown error',
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 動画ファイルのアップロード
-    console.log('Uploading file:', filename);
+    logger.log('Uploading file:', filename);
     const { data: uploadData, error: uploadError } = await supabase!.storage
       .from(VIDEO_BUCKET)
       .upload(filename, buffer, {
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      console.error('Upload error:', uploadError);
+      logger.error('Upload error:', uploadError);
       
       // エラーの詳細な解析
       if (uploadError.message.includes('row-level security')) {
@@ -163,7 +164,7 @@ export async function POST(request: NextRequest) {
       throw uploadError;
     }
 
-    console.log('Upload successful:', uploadData);
+    logger.log('Upload successful:', uploadData);
 
     // 公開URLの取得
     const { data: urlData } = supabase!.storage
@@ -171,7 +172,7 @@ export async function POST(request: NextRequest) {
       .getPublicUrl(filename);
 
     const videoUrl = urlData.publicUrl;
-    console.log('Public URL:', videoUrl);
+    logger.log('Public URL:', videoUrl);
 
     // レスポンス
     const response = {
@@ -188,12 +189,12 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    console.log('Upload complete:', response);
+    logger.log('Upload complete:', response);
     return NextResponse.json(response);
 
   } catch (error) {
-    console.error('=== Upload Error ===');
-    console.error(error);
+    logger.error('=== Upload Error ===');
+    logger.error(error);
     
     // エラーの詳細情報を含めて返す
     const errorResponse = {

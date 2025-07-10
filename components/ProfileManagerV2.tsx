@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { logger } from '@/utils/logger';
 import api from '../utils/api';
 import { Profile } from '../types';
 import Toast from './Toast';
@@ -47,7 +48,7 @@ function ProfileManagerV2({ token }: ProfileManagerV2Props) {
     try {
       const response = await api.get('/profile');
       const data = response.data;
-      console.log('Fetched profile:', data);
+      logger.log('Fetched profile:', data);
       
       setProfile(data);
       setFormData({
@@ -69,7 +70,7 @@ function ProfileManagerV2({ token }: ProfileManagerV2Props) {
         services: data.services || []
       });
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      logger.error('Error fetching profile:', error);
       showToast('プロフィールの取得に失敗しました', 'error');
     } finally {
       setLoading(false);
@@ -81,10 +82,10 @@ function ProfileManagerV2({ token }: ProfileManagerV2Props) {
     setSaving(true);
 
     try {
-      console.log('Saving profile data:', formData);
+      logger.log('Saving profile data:', formData);
       
       // 開発環境ではトークンなしでも動作するように修正
-      console.log('Sending profile data:', formData);
+      logger.log('Sending profile data:', formData);
       
       // 直接fetchを使用してAuthorizationヘッダーを回避
       const response = await fetch('/api/profile', {
@@ -101,7 +102,7 @@ function ProfileManagerV2({ token }: ProfileManagerV2Props) {
         throw new Error(data.error || 'Profile update failed');
       }
       
-      console.log('Save response:', data);
+      logger.log('Save response:', data);
       
       await fetchProfile();
       showToast('プロフィールを保存しました！メインサイトに反映されました。', 'success');
@@ -117,7 +118,7 @@ function ProfileManagerV2({ token }: ProfileManagerV2Props) {
         }, 500);
       }
     } catch (error: any) {
-      console.error('Error saving profile:', error);
+      logger.error('Error saving profile:', error);
       const errorMessage = error.message || 'エラーが発生しました';
       showToast(errorMessage, 'error');
     } finally {

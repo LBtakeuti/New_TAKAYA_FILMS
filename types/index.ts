@@ -37,6 +37,16 @@ export interface Video {
   updated_at?: string;
 }
 
+export interface SocialLinks {
+  twitter?: string;
+  instagram?: string;
+  linkedin?: string;
+  youtube?: string;
+  facebook?: string;
+  github?: string;
+  [key: string]: string | undefined;
+}
+
 export interface Profile {
   id: number;
   name: string;
@@ -47,7 +57,7 @@ export interface Profile {
   phone: string;
   location: string;
   website: string;
-  social_links: any;
+  social_links: SocialLinks;
   skills: string[];
   services: string[];
   updated_at: string;

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { logger } from '@/utils/logger';
 
 // クライアントサイドで動的にベースURLを決定
 const getApiBaseUrl = () => {
@@ -30,7 +31,7 @@ api.interceptors.request.use(
     
     // デバッグ用ログ（開発環境のみ、GETリクエストは除外）
     if (config.method !== 'get' && process.env.NODE_ENV === 'development') {
-      console.log('API Request:', {
+      logger.log('API Request:', {
         url: config.url,
         method: config.method,
         hasToken: !!token
@@ -40,7 +41,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error('Request interceptor error:', error);
+    logger.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
@@ -49,7 +50,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error('API Error:', error.response?.data || error.message);
+    logger.error('API Error:', error.response?.data || error.message);
     
     if (error.response?.status === 401) {
       localStorage.removeItem('token');

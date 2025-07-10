@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import { logger } from '@/utils/logger';
 import { useRouter } from 'next/navigation';
 import api from '@/utils/api';
+import axios from 'axios';
 
 const LoginPage: React.FC = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -16,18 +18,24 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      console.log('Login attempt with:', { username: credentials.username });
+      logger.log('Login attempt with:', { username: credentials.username });
       const response = await api.post('/auth/login', credentials);
-      console.log('Login response:', response.data);
+      logger.log('Login response:', response.data);
       
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
         router.push('/admin');
       }
-    } catch (error: any) {
-      console.error('Login error:', error);
-      setError(error.response?.data?.error || error.message || 'ログインに失敗しました');
+    } catch (error) {
+      logger.error('Login error:', error);
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.error || error.message || 'ログインに失敗しました');
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('ログインに失敗しました');
+      }
     } finally {
       setLoading(false);
     }
@@ -40,18 +48,6 @@ const LoginPage: React.FC = () => {
           TAKAYA FILMS Admin
         </h1>
         
-        <div style={{ 
-          background: '#f0f0f0', 
-          padding: '15px', 
-          borderRadius: '5px', 
-          marginBottom: '20px',
-          fontSize: '14px',
-          color: '#333'
-        }}>
-          <strong>ログイン情報:</strong><br />
-          Username: admin<br />
-          Password: takaya2024
-        </div>
         
         <form onSubmit={handleSubmit}>
           <div className="admin-form-group">

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { logger } from '@/utils/logger';
 import api from '@/utils/api';
 import ContactForm from '@/components/ContactForm';
 import VideoPlayer from '@/components/VideoPlayer';
@@ -34,26 +35,26 @@ export default function HomePage() {
   const fetchData = async () => {
     // 既に読み込み中の場合はスキップ
     if (isFetchingRef.current) {
-      console.log('Skipping fetch - already in progress');
+      logger.log('Skipping fetch - already in progress');
       return;
     }
     
     isFetchingRef.current = true;
-    console.log('Starting data fetch...');
+    logger.log('Starting data fetch...');
     
     try {
       const [videosResponse, profileResponse] = await Promise.all([
         api.get('/videos').catch((error) => {
-          console.error('Videos fetch error:', error);
+          logger.error('Videos fetch error:', error);
           return { data: [] };
         }),
         api.get('/profile').catch((error) => {
-          console.error('Profile fetch error:', error);
+          logger.error('Profile fetch error:', error);
           return { data: null };
         })
       ]);
       
-      console.log('Data fetched successfully:', {
+      logger.log('Data fetched successfully:', {
         videos: videosResponse.data?.length || 0,
         hasProfile: !!profileResponse.data
       });
@@ -61,7 +62,7 @@ export default function HomePage() {
       setVideos(videosResponse.data || []);
       setProfile(profileResponse.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      logger.error('Error fetching data:', error);
     } finally {
       setLoading(false);
       isFetchingRef.current = false;

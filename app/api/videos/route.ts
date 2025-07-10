@@ -1,76 +1,109 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/utils/logger';
+import { getVideos, createVideo } from '@/lib/supabase-videos';
+import { handleApiError, ValidationError, AuthenticationError } from '@/middleware/error';
+import { handleCors, corsHeaders } from '@/middleware/cors';
+import { verifyAuth } from '@/lib/auth';
 
-// グローバルストレージ（本番環境ではSupabaseまたはデータベースを使用）
-declare global {
-  var videoStore: any;
-}
-
-if (!global.videoStore) {
-  global.videoStore = {
-    videos: [],
-    nextId: 1
-  };
-}
-
+// GET: 公開されている動画一覧を取得
 export async function GET(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
-    // レスポンスヘッダーにキャッシュ制御を追加
-    const headers = new Headers();
-    headers.set('Cache-Control', 'public, max-age=60'); // 1分間キャッシュ
+    // 認証チェックで取得内容を変更
+    const authHeader = request.headers.get('authorization');
+    let publishedOnly = true;
     
-    const publishedVideos = global.videoStore.videos.filter((video: any) => video.is_published);
-    return NextResponse.json(
-      publishedVideos.sort((a: any, b: any) => a.sort_order - b.sort_order || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
-      { headers }
-    );
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const isValid = await verifyAuth(token);
+      if (isValid) {
+        publishedOnly = false; // 認証済みの場合は全て取得
+      }
+    }
+    
+    const videos = await getVideos(publishedOnly);
+    
+    // CORSとキャッシュヘッダーを組み合わせる
+    const headers = {
+      ...corsHeaders(request),
+      'Cache-Control': 'public, max-age=60'
+    };
+    
+    return NextResponse.json(videos, { headers });
   } catch (error) {
-    console.error('Error fetching videos:', error);
-    return NextResponse.json({ error: 'Failed to fetch videos' }, { status: 500 });
+    return handleApiError(error);
   }
 }
 
+// POST: 新しい動画を作成
 export async function POST(request: NextRequest) {
+  // Handle CORS preflight
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
-    // ローカルホストでは認証をスキップ
-    const host = request.headers.get('host');
-    const isLocalhost = host?.includes('localhost') || host?.includes('127.0.0.1');
-    
-    if (!isLocalhost) {
-      // 本番環境のみ認証チェック（今は省略）
-      console.log('Production environment - auth required');
+    // 認証チェック
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new AuthenticationError('認証が必要です');
+    }
+
+    const token = authHeader.split(' ')[1];
+    const isValid = await verifyAuth(token);
+    if (!isValid) {
+      throw new AuthenticationError('無効なトークンです');
     }
     
     const body = await request.json();
     
-    const video = {
-      id: global.videoStore.nextId++,
+    // バリデーション
+    if (!body.title) {
+      throw new ValidationError('タイトルは必須です');
+    }
+    
+    if (body.video_type === 'youtube' && !body.youtube_url && !body.video_url) {
+      throw new ValidationError('YouTube URLは必須です');
+    }
+    
+    // 動画データの準備
+    const videoData = {
       title: body.title,
       description: body.description || '',
       video_url: body.youtube_url || body.video_url || '',
-      video_file_path: body.video_file_path || null,
-      thumbnail_url: body.thumbnail_url || null,
-      thumbnail_file_path: body.thumbnail_file_path || null,
+      video_file_path: body.video_file_path,
+      thumbnail_url: body.thumbnail_url,
+      thumbnail_file_path: body.thumbnail_file_path,
       video_type: body.video_type || 'youtube',
-      file_size: body.file_size || null,
-      duration: body.duration || null,
-      mime_type: body.mime_type || null,
+      file_size: body.file_size,
+      duration: body.duration,
+      mime_type: body.mime_type,
       category: body.category || 'Other',
       client: body.client || '',
-      project_date: body.project_date || null,
+      project_date: body.project_date,
       status: body.status || 'published',
-      is_published: body.status !== 'draft',
       featured: body.featured || false,
-      is_featured: body.featured || false,
       sort_order: body.sort_order || 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
     };
 
-    global.videoStore.videos.push(video);
+    const video = await createVideo(videoData);
     
-    return NextResponse.json(video, { status: 201 });
+    if (!video) {
+      throw new Error('動画の作成に失敗しました');
+    }
+    
+    return NextResponse.json(video, { 
+      status: 201,
+      headers: corsHeaders(request)
+    });
   } catch (error) {
-    console.error('Error creating video:', error);
-    return NextResponse.json({ error: 'Failed to create video' }, { status: 500 });
+    return handleApiError(error);
   }
+}
+
+// OPTIONS: CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request) || new NextResponse(null, { status: 200 });
 }

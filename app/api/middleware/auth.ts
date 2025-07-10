@@ -1,7 +1,13 @@
 import jwt from 'jsonwebtoken';
+import { logger } from '@/utils/logger';
 import { NextRequest } from 'next/server';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+// JWT_SECRETが設定されていない場合は警告
+if (!JWT_SECRET) {
+  logger.error('JWT_SECRET is not configured. Authentication will not work properly.');
+}
 
 interface DecodedToken {
   username: string;
@@ -12,6 +18,10 @@ interface DecodedToken {
 
 // トークン検証関数
 export const verifyToken = (token: string): DecodedToken => {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured');
+  }
+  
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as DecodedToken;
     return decoded;

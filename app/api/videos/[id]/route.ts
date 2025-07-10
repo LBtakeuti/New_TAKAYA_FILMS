@@ -1,63 +1,78 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/utils/logger';
+import { updateVideo, deleteVideo } from '@/lib/supabase-videos';
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+// PUT: 動画を更新
+export async function PUT(
+  request: NextRequest, 
+  { params }: { params: { id: string } }
+) {
   try {
     const id = parseInt(params.id);
     const body = await request.json();
     
-    const videoIndex = global.videoStore.videos.findIndex((video: any) => video.id === id);
-    
-    if (videoIndex === -1) {
-      return NextResponse.json({ error: 'Video not found' }, { status: 404 });
-    }
-
-    const updatedVideo = {
-      ...global.videoStore.videos[videoIndex],
+    // 動画データの準備
+    const videoData = {
       title: body.title,
       description: body.description || '',
       video_url: body.youtube_url || body.video_url || '',
-      video_file_path: body.video_file_path || global.videoStore.videos[videoIndex].video_file_path || null,
-      thumbnail_url: body.thumbnail_url || null,
-      thumbnail_file_path: body.thumbnail_file_path || global.videoStore.videos[videoIndex].thumbnail_file_path || null,
-      video_type: body.video_type || global.videoStore.videos[videoIndex].video_type || 'youtube',
-      file_size: body.file_size || global.videoStore.videos[videoIndex].file_size || null,
-      duration: body.duration || global.videoStore.videos[videoIndex].duration || null,
-      mime_type: body.mime_type || global.videoStore.videos[videoIndex].mime_type || null,
+      video_file_path: body.video_file_path,
+      thumbnail_url: body.thumbnail_url,
+      thumbnail_file_path: body.thumbnail_file_path,
+      video_type: body.video_type,
+      file_size: body.file_size,
+      duration: body.duration,
+      mime_type: body.mime_type,
       category: body.category || 'Other',
       client: body.client || '',
-      project_date: body.project_date || null,
+      project_date: body.project_date,
       status: body.status || 'published',
-      is_published: body.status !== 'draft',
       featured: body.featured || false,
-      is_featured: body.featured || false,
       sort_order: body.sort_order || 0,
-      updated_at: new Date().toISOString()
     };
 
-    global.videoStore.videos[videoIndex] = updatedVideo;
+    const updatedVideo = await updateVideo(id, videoData);
+    
+    if (!updatedVideo) {
+      return NextResponse.json(
+        { error: 'Video not found' }, 
+        { status: 404 }
+      );
+    }
     
     return NextResponse.json(updatedVideo);
   } catch (error) {
-    console.error('Error updating video:', error);
-    return NextResponse.json({ error: 'Failed to update video' }, { status: 500 });
+    logger.error('Error updating video:', error);
+    return NextResponse.json(
+      { error: 'Failed to update video' }, 
+      { status: 500 }
+    );
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+// DELETE: 動画を削除
+export async function DELETE(
+  request: NextRequest, 
+  { params }: { params: { id: string } }
+) {
   try {
     const id = parseInt(params.id);
     
-    const videoIndex = global.videoStore.videos.findIndex((video: any) => video.id === id);
+    const success = await deleteVideo(id);
     
-    if (videoIndex === -1) {
-      return NextResponse.json({ error: 'Video not found' }, { status: 404 });
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Video not found' }, 
+        { status: 404 }
+      );
     }
-
-    global.videoStore.videos.splice(videoIndex, 1);
     
     return NextResponse.json({ message: 'Video deleted successfully' });
   } catch (error) {
-    console.error('Error deleting video:', error);
-    return NextResponse.json({ error: 'Failed to delete video' }, { status: 500 });
+    logger.error('Error deleting video:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete video' }, 
+      { status: 500 }
+    );
   }
 }

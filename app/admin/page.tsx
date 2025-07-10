@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { logger } from '@/utils/logger';
 import { useRouter } from 'next/navigation';
 import ProfileManagerV2 from '@/components/ProfileManagerV2';
 import VideoManager from '@/components/VideoManager';
+import { User } from '@/types';
 
 const Dashboard: React.FC = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [currentView, setCurrentView] = useState('overview');
   const [token, setToken] = useState('');
   const router = useRouter();
@@ -25,7 +27,7 @@ const Dashboard: React.FC = () => {
       setUser(parsedUser);
       setToken(storedToken);
     } catch (error) {
-      console.error('Error loading user data:', error);
+      logger.error('Error loading user data:', error);
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       router.push('/admin/login');
