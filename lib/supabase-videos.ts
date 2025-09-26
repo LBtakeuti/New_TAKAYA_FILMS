@@ -12,7 +12,7 @@ const isSupabaseConfigured = () => {
 
 // 動画一覧の取得
 export const getVideos = async (publishedOnly = true): Promise<Video[]> => {
-  if (!isSupabaseConfigured()) {
+  if (!isSupabaseConfigured() || !supabase) {
     // Supabase未設定時はメモリキャッシュを返す
     return publishedOnly 
       ? memoryCache.filter(v => v.is_published)
@@ -75,6 +75,9 @@ export const createVideo = async (videoData: Partial<Video>): Promise<Video | nu
   }
 
   try {
+    if (!supabase) {
+      throw new Error('Supabase client is not initialized');
+    }
     const { data, error } = await supabase
       .from('videos')
       .insert([{
@@ -111,6 +114,9 @@ export const updateVideo = async (id: number, videoData: Partial<Video>): Promis
   }
 
   try {
+    if (!supabase) {
+      throw new Error('Supabase client is not initialized');
+    }
     const { data, error } = await supabase
       .from('videos')
       .update({
@@ -145,6 +151,9 @@ export const deleteVideo = async (id: number): Promise<boolean> => {
   }
 
   try {
+    if (!supabase) {
+      throw new Error('Supabase client is not initialized');
+    }
     const { error } = await supabase
       .from('videos')
       .delete()

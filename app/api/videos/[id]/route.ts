@@ -5,10 +5,11 @@ import { updateVideo, deleteVideo } from '@/lib/supabase-videos';
 // PUT: 動画を更新
 export async function PUT(
   request: NextRequest, 
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: idString } = await params;
+    const id = parseInt(idString);
     const body = await request.json();
     
     // 動画データの準備
@@ -53,10 +54,11 @@ export async function PUT(
 // DELETE: 動画を削除
 export async function DELETE(
   request: NextRequest, 
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: idString } = await params;
+    const id = parseInt(idString);
     
     const success = await deleteVideo(id);
     
